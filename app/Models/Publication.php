@@ -20,7 +20,7 @@ class Publication extends Model
     {
         return $this->belongsToMany(User::class)
             ->withPivot('position')
-            ->orderBy('position'); // Fondamentale per l'ordine di paternità!
+            ->orderBy('position');
     }
 
     public function attachments(): MorphMany

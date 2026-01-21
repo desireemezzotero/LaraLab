@@ -1,5 +1,8 @@
-@extends('.layouts.master');
+@extends('.layouts.master')
 
-@section('content')
-    <h2>ciao</h2>
+@section('component')
+    <div>
+        <h1>inserire carosello</h1>
+        @include('.partials.publicationCard')
+    </div>
 @endsection

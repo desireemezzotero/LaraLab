@@ -17,6 +17,7 @@ class DatabaseSeeder extends Seeder
      */
     public function run(): void
     {
+
         /* CREAZIONE UTENTE AMMINISTRATORE PER IL LOGIN */
         $admin = User::factory()->create([
             'name' => 'Admin User',
@@ -54,13 +55,30 @@ class DatabaseSeeder extends Seeder
             );
         });
 
-        /* 4. GENERAZIONE PUBBLICAZIONI CON AUTORI E ALLEGATI PDF */
-        Publication::factory(10)->create()->each(function ($publication) use ($users) {
+        /* 4. GENERAZIONE PUBBLICAZIONI */
+
+        // Definiamo quanti record vogliamo per tipo
+        $totalPublished = 15;
+        $totalDrafts = 5;
+        $totalSubmi = 5;
+
+        // Creiamo un unico insieme di pubblicazioni mescolando gli stati
+        $publicationData = collect()
+            ->concat(array_fill(0, $totalPublished, ['status' => 'published']))
+            ->concat(array_fill(0, $totalDrafts, ['status' => 'drafting']))
+            ->concat(array_fill(0, $totalSubmi, ['status' => 'submitted']));
+
+
+        $publicationData->each(function ($data) use ($users) {
+            // Creiamo la pubblicazione con lo stato specifico (published o drafting)
+            $publication = Publication::factory()->create($data);
 
             /* Collega la pubblicazione a 1 o 2 progetti esistenti (Relazione N:N) */
-            $publication->projects()->attach(Project::all()->random(rand(1, 2))->pluck('id'));
+            $publication->projects()->attach(
+                Project::all()->random(rand(1, 2))->pluck('id')
+            );
 
-            /* Aggiunge autori gestendo la colonna 'position' per l'ordine di paternità */
+            /* Aggiunge autori con colonna 'position' (Requisito: Ordine di paternità) */
             $authors = $users->random(rand(1, 3));
             foreach ($authors as $index => $author) {
                 $publication->authors()->attach($author->id, [
@@ -68,7 +86,7 @@ class DatabaseSeeder extends Seeder
                 ]);
             }
 
-            /* RELAZIONE POLIMORFICA: Aggiunge il file PDF della pubblicazione scientifica */
+            /* RELAZIONE POLIMORFICA: Allegato PDF (Requisito: Upload materiali) */
             $publication->attachments()->create(
                 Attachment::factory()->make()->toArray()
             );
