@@ -25,10 +25,10 @@
                 id="user-dropdown">
                 <ul class="py-2" aria-labelledby="user-menu-button">
                     <li>
-                        <a href="#" class="block px-4 py-2 text-sm">Accedi</a>
+                        <a href="{{ route('login') }}" class="block px-4 py-2 text-sm">Accedi</a>
                     </li>
                     <li>
-                        <a href="#" class="block px-4 py-2 text-sm">Registrati</a>
+                        <a href="{{ route('register') }}" class="block px-4 py-2 text-sm">Registrati</a>
                     </li>
                 </ul>
             </div>
@@ -49,7 +49,8 @@
             <ul
                 class="flex flex-col font-medium p-4 md:p-0 mt-4 border border-gray-100 rounded-lg md:space-x-8 rtl:space-x-reverse md:flex-row md:mt-0 md:border-0">
                 <li>
-                    <a href="#" class="block py-2 px-3 rounded-sm md:bg-transparent" aria-current="page">Home</a>
+                    <a href="{{ route('publications.index') }}" class="block py-2 px-3 rounded-sm md:bg-transparent"
+                        aria-current="page">Home</a>
                 </li>
                 <li>
                     <a href="#" class="block py-2 px-3 rounded-sm md:bg-transparent"

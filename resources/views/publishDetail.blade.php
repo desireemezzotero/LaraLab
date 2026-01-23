@@ -1,35 +1,34 @@
 @extends('.layouts.master')
 
 @section('component')
-    <div>
-        <div class="container mx-auto px-4 py-12">
+    <div
+        class="container mx-auto px-4 py-12 flex flex-col items-center bg-neutral-primary-soft p-6 border border-default rounded-base shadow-xs">
+        <img class="object-cover w-full rounded-base h-64 md:h-auto md:w-48 mb-4 md:mb-0" src="#" alt="">
 
-            <div class="mb-10">
-                <h2 class="text-3xl font-bold text-heading">pubblicazione </h2>
-            </div>
+        <div class="flex flex-col justify-between md:p-4 leading-normal">
+            <h5 class="mb-2 text-2xl font-bold tracking-tight text-heading">{{ $publication->title }}</h5>
+            <p class="mb-6 text-body">{{ $publication->description }}</p>
 
-            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
-                <div
-                    class="bg-neutral-primary-soft flex flex-col h-full p-6 border border-default rounded-base shadow-xs hover:shadow-md transition-shadow duration-300">
-
-
-                    <a href="#" class="block overflow-hidden rounded-base">
-                        <img class="w-full h-48 object-cover transform hover:scale-105 transition-transform duration-500"
-                            src="#" alt="#" />
-                    </a>
-
-                    <div class="flex flex-col flex-grow">
-                        <h5 class="mt-6 mb-2 text-2xl font-semibold tracking-tight text-heading">
-                            {{ $publication->title }}
-                        </h5>
-
-                        <p class="mb-6 text-body line-clamp-3 flex-grow">
-                            {{ $publication->description }}
-                        </p>
-                    </div>
-
-                </div>
-            </div>
-
+            <table class="table-auto">
+                <thead>
+                    <tr>
+                        <th>Autore</th>
+                        <th>Email</th>
+                        <th>Posizione autore</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach ($publication->authors as $author)
+                        <tr>
+                            <td>{{ $author->name }}</td>
+                            <td>{{ $author->email }}</td>
+                            <td>{{ $author->pivot->position }}</td>
+                        </tr>
+                    @endforeach
+                </tbody>
+            </table>
         </div>
-    @endsection
+
+
+    </div>
+@endsection

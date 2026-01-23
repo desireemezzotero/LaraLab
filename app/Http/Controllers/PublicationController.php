@@ -48,6 +48,8 @@ class PublicationController extends Controller
      */
     public function show(Publication $publication)
     {
+        $publication->load(['authors', 'attachments']);
+        /*  return response()->json($publication); */
         return view('publishDetail', compact('publication'));
     }
 
