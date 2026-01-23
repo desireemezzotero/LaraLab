@@ -1,17 +1,53 @@
-<x-app-layout>
-    <x-slot name="header">
-        <h2 class="font-semibold text-xl text-gray-800 dark:text-gray-200 leading-tight">
-            {{ __('Dashboard') }}
-        </h2>
-    </x-slot>
+@extends('.layouts.master')
 
-    <div class="py-12">
-        <div class="max-w-7xl mx-auto sm:px-6 lg:px-8">
-            <div class="bg-white dark:bg-gray-800 overflow-hidden shadow-sm sm:rounded-lg">
-                <div class="p-6 text-gray-900 dark:text-gray-100">
-                    {{ __("You're logged in!") }}
-                </div>
-            </div>
+@section('component')
+    <div class="container mx-auto mt-5">
+
+        <h1 class="mb-4 text-4xl font-bold tracking-tight text-heading md:text-4xl lg:text-5xl text-center">
+            Profilo di {{ $user->name }} ({{ $user->role }})
+        </h1>
+
+
+
+        <div class="bg-neutral-primary-soft block p-6 border border-default rounded-base hover:bg-neutral-secondary-medium">
+            <h3 class="text-lg font-bold mb-4">I Miei Progetti di Ricerca</h3>
+
+            @if ($user->projects->isNotEmpty())
+                <a href="#">
+                    <div class="space-y-4">
+                        @foreach ($user->projects as $project)
+                            <div class="p-4 border rounded">
+                                <h4 class="font-bold">{{ $project->title }}</h4>
+                                <p class="text-sm text-gray-500">Ruolo: {{ $project->pivot->project_role }}</p>
+                            </div>
+                        @endforeach
+                    </div>
+                </a>
+            @else
+                <p>Nessun progetto collegato a questo account.</p>
+            @endif
         </div>
+
+
+        <div
+            class="bg-neutral-primary-soft block p-6 border border-default rounded-base hover:bg-neutral-secondary-medium mt-11">
+            <h3 class="text-lg font-bold mb-4">I Miei Task</h3>
+
+            @if ($user->tasks->isNotEmpty())
+                <a href="#">
+                    <div class="space-y-4">
+                        @foreach ($user->tasks as $task)
+                            <div class="p-4 border rounded">
+                                <h4 class="font-bold">{{ $task->title }}</h4>
+                                <p class="text-sm text-gray-500"> Status: {{ $task->status }}</p>
+                            </div>
+                        @endforeach
+                    </div>
+                </a>
+            @else
+                <p>Nessuna task assegnato</p>
+            @endif
+        </div>
+
     </div>
-</x-app-layout>
+@endsection
