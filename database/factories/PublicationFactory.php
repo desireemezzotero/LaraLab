@@ -17,8 +17,8 @@ class PublicationFactory extends Factory
     public function definition(): array
     {
         return [
-            'title' => fake()->sentence(6),
-            'description' => fake()->paragraph(),
+            'title' => fake()->sentence(3),
+            'description' => fake()->realText(500),
             'status' => fake()->randomElement(['drafting', 'submitted', 'accepted', 'published']),
         ];
     }

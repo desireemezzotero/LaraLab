@@ -19,15 +19,25 @@ use Illuminate\Support\Facades\Route;
 
 /* Route::get('/', [PublicationController::class, 'index'])->name('publication.index'); */
 
+Route::get('/', function () {
+    return view('welcome');
+});
 
 Route::resource('/publications', PublicationController::class);
 
-Route::get('/dashboard', [DashboardController::class, 'index'])
-    ->middleware(['auth', 'verified'])
-    ->name('dashboard');
 
+Route::middleware(['auth', 'verified'])->group(function () {
 
-Route::middleware('auth')->group(function () {
+    /* pagina dell'utente quando effettua il login */
+    Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
+
+    /* pagina dei progetti  */
+    Route::resource('projects', ProjectController::class);
+
+    // CRUD Pubblicazioni
+    /* Route::resource('publications', PublicationController::class); */
+
+    // Profilo Utente
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
     Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
     Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');

@@ -2,26 +2,18 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\Publication;
+use App\Models\Project;
 use Illuminate\Http\Request;
 
-class PublicationController extends Controller
+class ProjectController extends Controller
 {
     /**
      * Display a listing of the resource.
      */
     public function index()
     {
-        $publicationPublished = Publication::with(['authors' => function ($query) {
-            $query->orderBy('publication_user.position', 'asc');
-        }])
-            ->where('status', 'published')
-            ->latest()
-            ->get();
-        /* return response()->json($publicationPublished); */
-        return view('welcome', compact('publicationPublished'));
+        //
     }
-
 
     /**
      * Show the form for creating a new resource.
@@ -42,11 +34,13 @@ class PublicationController extends Controller
     /**
      * Display the specified resource.
      */
-    public function show(Publication $publication)
+    public function show(Project $project)
     {
-        $publication->load(['authors', 'attachments']);
-        /*  return response()->json($publication); */
-        return view('publishDetail', compact('publication'));
+        $project->load(['users', 'tasks', 'publications']);
+
+        /* eturn response()->json($project); */
+
+        return view('projectShow', compact('project'));
     }
 
     /**

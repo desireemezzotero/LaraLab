@@ -26,16 +26,16 @@ class DatabaseSeeder extends Seeder
         ]);
 
         /* CREAZIONE DI ALTRI UTENTI GENERICI */
-        $users = User::factory(10)->create();
+        $users = User::factory(40)->create();
 
         /*  GENERAZIONE PROGETTI CON RELATIVE MILESTONE E ALLEGATI */
-        Project::factory(5)->create()->each(function ($project) use ($users) {
+        Project::factory(70)->create()->each(function ($project) use ($users) {
 
             /* Crea 3 milestone per ogni progetto */
-            $milestones = Milestone::factory(3)->create(['project_id' => $project->id]);
+            $milestones = Milestone::factory(10)->create(['project_id' => $project->id]);
 
             /* Associa casualmente da 2 a 4 utenti al progetto tramite tabella pivot */
-            $projectUsers = $users->random(rand(2, 4));
+            $projectUsers = $users->random(rand(2, 6));
             foreach ($projectUsers as $user) {
                 $project->users()->attach($user->id, [
                     'project_role' => fake()->randomElement(['Project Manager', 'Researcher', 'Collaborator'])
@@ -43,11 +43,15 @@ class DatabaseSeeder extends Seeder
             }
 
             /* Crea 8 task assegnati agli utenti del progetto e collegati alle milestone */
-            Task::factory(8)->create([
-                'project_id' => $project->id,
-                'user_id' => $projectUsers->random()->id,
-                'milestone_id' => $milestones->random()->id,
-            ]);
+
+            for ($i = 0; $i < 70; $i++) {
+                Task::factory()->create([
+                    'project_id' => $project->id,
+                    'user_id' => $projectUsers->random()->id,
+                    'milestone_id' => $project->milestones->random()->id,
+                ]);
+            }
+
 
             /* RELAZIONE POLIMORFICA: Aggiunge 2 documenti tecnici al progetto */
             $project->attachments()->createMany(
@@ -58,9 +62,9 @@ class DatabaseSeeder extends Seeder
         /* 4. GENERAZIONE PUBBLICAZIONI */
 
         // Definiamo quanti record vogliamo per tipo
-        $totalPublished = 15;
-        $totalDrafts = 5;
-        $totalSubmi = 5;
+        $totalPublished = 20;
+        $totalDrafts = 10;
+        $totalSubmi = 10;
 
         // Creiamo un unico insieme di pubblicazioni mescolando gli stati
         $publicationData = collect()
@@ -75,11 +79,11 @@ class DatabaseSeeder extends Seeder
 
             /* Collega la pubblicazione a 1 o 2 progetti esistenti (Relazione N:N) */
             $publication->projects()->attach(
-                Project::all()->random(rand(1, 2))->pluck('id')
+                Project::all()->random(rand(1, 5))->pluck('id')
             );
 
             /* Aggiunge autori con colonna 'position' (Requisito: Ordine di paternità) */
-            $authors = $users->random(rand(1, 3));
+            $authors = $users->random(rand(1, 6));
             foreach ($authors as $index => $author) {
                 $publication->authors()->attach($author->id, [
                     'position' => $index + 1

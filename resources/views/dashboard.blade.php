@@ -1,52 +1,29 @@
 @extends('.layouts.master')
 
 @section('component')
-    <div class="container mx-auto mt-5">
+    <div class="p-4 mx-auto container">
 
-        <h1 class="mb-4 text-4xl font-bold tracking-tight text-heading md:text-4xl lg:text-5xl text-center">
-            Profilo di {{ $user->name }} ({{ $user->role }})
-        </h1>
-
-
-
-        <div class="bg-neutral-primary-soft block p-6 border border-default rounded-base hover:bg-neutral-secondary-medium">
-            <h3 class="text-lg font-bold mb-4">I Miei Progetti di Ricerca</h3>
-
-            @if ($user->projects->isNotEmpty())
-                <a href="#">
-                    <div class="space-y-4">
-                        @foreach ($user->projects as $project)
-                            <div class="p-4 border rounded">
-                                <h4 class="font-bold">{{ $project->title }}</h4>
-                                <p class="text-sm text-gray-500">Ruolo: {{ $project->pivot->project_role }}</p>
-                            </div>
-                        @endforeach
-                    </div>
-                </a>
-            @else
-                <p>Nessun progetto collegato a questo account.</p>
-            @endif
+        <div class="mb-8 text-center">
+            <h1 class="text-2xl font-bold text-gray-800">Bentornato, {{ $user->name }} 👋</h1>
+            <p class="text-gray-600">Ecco un riepilogo delle tue attività</p>
         </div>
 
 
-        <div
-            class="bg-neutral-primary-soft block p-6 border border-default rounded-base hover:bg-neutral-secondary-medium mt-11">
-            <h3 class="text-lg font-bold mb-4">I Miei Task</h3>
+        <div class="grid grid-cols-1 lg:grid-cols-4 gap-8">
 
-            @if ($user->tasks->isNotEmpty())
-                <a href="#">
-                    <div class="space-y-4">
-                        @foreach ($user->tasks as $task)
-                            <div class="p-4 border rounded">
-                                <h4 class="font-bold">{{ $task->title }}</h4>
-                                <p class="text-sm text-gray-500"> Status: {{ $task->status }}</p>
-                            </div>
-                        @endforeach
-                    </div>
-                </a>
-            @else
-                <p>Nessuna task assegnato</p>
-            @endif
+            <div class="lg:col-span-1">
+                {{-- NOTIFICHE --}}
+                @include('.components.component.notificationPart')
+            </div>
+
+            <div class="lg:col-span-3">
+                {{-- TASK --}}
+                @include('.components.component.taskPart')
+
+                {{-- PROGETTI --}}
+                @include('.components.component.projectPart')
+            </div>
+
         </div>
 
     </div>
