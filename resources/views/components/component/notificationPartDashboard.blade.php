@@ -5,7 +5,7 @@
 
 @if ($upcomingDeadlines->isNotEmpty())
     @foreach ($upcomingDeadlines as $project)
-        <div class="p-4 text-sm border-l-4 border-red-500 rounded-r-lg bg-red-50" role="alert">
+        <div class="p-4 text-sm border-l-4 border-red-500 rounded-r-lg bg-red-50 mt-2" role="alert">
             <div class="flex items-start">
                 <svg class="flex-shrink-0 w-4 h-4 mr-2 text-red-700 mt-0.5" fill="currentColor" viewBox="0 0 20 20">
                     <path

@@ -8,6 +8,7 @@ use App\Models\Publication;
 use App\Models\Milestone;
 use App\Models\Task;
 use App\Models\Attachment;
+use App\Models\Comment;
 use Illuminate\Database\Seeder;
 
 class DatabaseSeeder extends Seeder
@@ -42,17 +43,20 @@ class DatabaseSeeder extends Seeder
                 ]);
             }
 
-            /* Crea 8 task assegnati agli utenti del progetto e collegati alle milestone */
-
-            for ($i = 0; $i < 70; $i++) {
-                Task::factory()->create([
+            /* TASK */
+            $numberOfTasks = rand(3, 8);
+            for ($i = 0; $i < $numberOfTasks; $i++) {
+                $task = Task::factory()->create([
                     'project_id' => $project->id,
                     'user_id' => $projectUsers->random()->id,
-                    'milestone_id' => $project->milestones->random()->id,
+                    'milestone_id' => $milestones->random()->id,
+                ]);
+
+                Comment::factory(rand(1, 4))->create([
+                    'task_id' => $task->id,
+                    'user_id' => $projectUsers->random()->id,
                 ]);
             }
-
-
             /* RELAZIONE POLIMORFICA: Aggiunge 2 documenti tecnici al progetto */
             $project->attachments()->createMany(
                 Attachment::factory(2)->make()->toArray()

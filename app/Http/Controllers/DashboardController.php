@@ -16,11 +16,9 @@ class DashboardController extends Controller
         /* progetti che hanno come stato on_hold e active */
         $activeProjects = $user->projects()->whereIn('projects.status', ['on_hold', 'active'])->get();
 
-        /* pubblicazioni */
-        /*   $pendingPublications =  $user->publications()->whereNotIn('status', ['submitted', 'drafting'])->get(); */
-
         /* scadenze dei progetti entro 7 giorni */
-        $upcomingDeadlines = Project::where('end_date', '<=', now()->addDays(7))
+        $upcomingDeadlines = $user->projects()
+            ->where('end_date', '<=', now()->addDays(7))
             ->where('end_date', '>=', now())
             ->get();
 
@@ -29,17 +27,15 @@ class DashboardController extends Controller
         $completedTasks = $user->tasks()->where('status', 'completed')->count();
         $progressPercentageTasks = $totalTasks > 0 ? ($completedTasks / $totalTasks) * 100 : 0;
 
-        /* pubblicazioni per il grafica */
-        $totalPubs = $user->publications()->count();
-        $publishedCount = $user->publications()->where('status', 'published')->count();
-        $progressPercentagePublications = $totalPubs > 0 ? ($publishedCount / $totalPubs) * 100 : 0;
+        /* pubblicazioni che hanno come stato submitted e drafting */
+        $publicationCount = $user->publications()->whereIn('status', ['submitted', 'drafting'])->get();
 
         return view('dashboard', compact(
             'user',
             'activeProjects',
             'upcomingDeadlines',
             'progressPercentageTasks',
-            'progressPercentagePublications',
+            'publicationCount',
         ));
     }
 }

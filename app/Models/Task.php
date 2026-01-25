@@ -24,5 +24,10 @@ class Task extends Model
     {
         return $this->belongsTo(Milestone::class);
     }
+
+    public function comments()
+    {
+        return $this->hasMany(Comment::class);
+    }
     use HasFactory;
 }
