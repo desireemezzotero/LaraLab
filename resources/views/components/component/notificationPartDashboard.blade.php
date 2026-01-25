@@ -17,7 +17,7 @@
                         {{ $project->end_date }}
                     </p>
 
-                    <a href="{{ route('projects.show', $project->id) }}">
+                    <a href="{{ route('project.show', $project->id) }}">
                         <p class="font-bold text-red-800">continua a modificare</p>
                     </a>
                 </div>

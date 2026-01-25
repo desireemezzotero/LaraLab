@@ -17,14 +17,8 @@ use Illuminate\Support\Facades\Route;
 |
 */
 
-/* Route::get('/', [PublicationController::class, 'index'])->name('publication.index'); */
-
-Route::get('/', function () {
-    return view('welcome');
-});
-
-Route::resource('/publications', PublicationController::class);
-
+Route::get('/', [PublicationController::class, 'index'])->name('publication.index');
+Route::get('/publications/{publication}', [PublicationController::class, 'show'])->name('publication.show');
 
 Route::middleware(['auth', 'verified'])->group(function () {
 
@@ -32,7 +26,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
 
     /* pagina dei progetti  */
-    Route::resource('projects', ProjectController::class);
+    Route::resource('project', ProjectController::class);
 
     // CRUD Pubblicazioni
     /* Route::resource('publications', PublicationController::class); */

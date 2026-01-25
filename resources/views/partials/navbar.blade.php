@@ -49,7 +49,7 @@
             <ul
                 class="flex flex-col font-medium p-4 md:p-0 mt-4 border border-gray-100 rounded-lg md:space-x-8 rtl:space-x-reverse md:flex-row md:mt-0 md:border-0">
                 <li>
-                    <a href="{{ route('publications.index') }}" class="block py-2 px-3 rounded-sm md:bg-transparent"
+                    <a href="{{ route('publication.index') }}" class="block py-2 px-3 rounded-sm md:bg-transparent"
                         aria-current="page">Home</a>
                 </li>
                 <li>

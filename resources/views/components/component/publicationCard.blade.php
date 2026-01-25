@@ -37,7 +37,7 @@
                         @endforeach
                     </ul>
                 </div>
-                <a href="{{ route('publications.show', $publication->id) }}"
+                <a href="{{ route('publication.show', $publication->id) }}"
                     class="inline-flex items-center text-body bg-neutral-secondary-medium box-border border border-default-medium hover:bg-neutral-tertiary-medium hover:text-heading focus:ring-4 focus:ring-neutral-tertiary shadow-xs font-medium leading-5 rounded-base text-sm px-4 py-2.5 focus:outline-none">
                     Leggi di più
                     <svg class="w-4 h-4 ms-1.5 rtl:rotate-180 -me-0.5" aria-hidden="true"

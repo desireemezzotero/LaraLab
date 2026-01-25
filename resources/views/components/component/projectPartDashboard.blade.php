@@ -29,7 +29,8 @@
 
                           <td class="px-6 py-4">{{ $project->end_date }}</td>
                           <td class="px-6 py-4">
-                              <a href="#" class="text-emerald-600 hover:underline">Vedi dettagli</a>
+                              <a href="{{ route('project.show', $project->id) }}"
+                                  class="text-emerald-600 hover:underline">Vedi dettagli</a>
                           </td>
                       </tr>
                   @empty

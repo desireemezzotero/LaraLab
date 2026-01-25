@@ -13,15 +13,15 @@
 
             <div class="lg:col-span-1">
                 {{-- NOTIFICHE --}}
-                @include('.components.component.notificationPart')
+                @include('.components.component.notificationPartDashboard')
             </div>
 
             <div class="lg:col-span-3">
                 {{-- TASK --}}
-                @include('.components.component.taskPart')
+                @include('.components.component.taskPartDashboard')
 
                 {{-- PROGETTI --}}
-                @include('.components.component.projectPart')
+                @include('.components.component.projectPartDashboard')
             </div>
 
         </div>
