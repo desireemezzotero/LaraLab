@@ -10,10 +10,7 @@ class ProjectController extends Controller
     /**
      * Display a listing of the resource.
      */
-    public function index()
-    {
-        //
-    }
+    public function index() {}
 
     /**
      * Show the form for creating a new resource.
@@ -36,7 +33,7 @@ class ProjectController extends Controller
      */
     public function show(Project $project)
     {
-        $project->load(['users', 'tasks', 'publications']);
+        $project->load(['users', 'tasks.user', 'publications', 'milestones', 'attachment']);
 
         /* eturn response()->json($project); */
 

@@ -16,7 +16,8 @@
             @foreach ($project->users as $user)
                 <div class="px-6 pb-2">
                     <span
-                        class="inline-block bg-gray-200 rounded-full px-3 py-1 text-sm font-semibold text-gray-700 mr-2 mb-2">{{ $user->name }}
+                        class="inline-block bg-gray-200 px-3 py-1 text-sm font-semibold text-gray-700 mr-2 mb-2">{{ $user->pivot->project_role }}:
+                        {{ $user->name }}
                     </span>
                 </div>
             @endforeach
@@ -30,22 +31,36 @@
             @foreach ($project->tasks as $task)
                 <div class="px-6 pb-2">
                     <span
-                        class="inline-block bg-gray-200 rounded-full px-3 py-1 text-sm font-semibold text-gray-700 mr-2 mb-2">{{ $task->title }}
+                        class="inline-block bg-gray-200 px-3 py-1 text-sm font-semibold text-gray-700 mr-2 mb-2">{{ $task->title }}
                     </span>
                 </div>
             @endforeach
 
 
-            {{-- TASK ASSEGANTE AL PROGETTO IN GENERALE --}}
+            {{-- OBIETTIVI ASSEGANTE AL PROGETTO IN GENERALE --}}
+            <h2 class="text-lg font-semibold mb-3 flex items-center">
+                <span class="flex w-3 h-3 rounded-full mr-2 bg-emerald-500 animate-pulse"></span>
+                obiettivi assegnati a questo progetto
+            </h2>
+
             <div class="px-6 pb-2">
                 <span
-                    class="inline-block bg-gray-200 rounded-full px-3 py-1 text-sm font-semibold text-gray-700 mr-2 mb-2">{{ $project->objectives }}
+                    class="inline-block bg-gray-200  px-3 py-1 text-sm font-semibold text-gray-700 mr-2 mb-2">{{ $project->objectives }}
                 </span>
             </div>
 
         </div>
 
         <div class="lg:col-span-1">
+
+            <div class="bg-neutral-primary-soft block max-w-sm p-6 border border-default rounded-base shadow-xs">
+
+                <a href="#">
+                    <img class="rounded-base" src="#" alt="" />
+                    <p>INSERIRE IMMAGINE</p>
+                </a>
+            </div>
+
             <a href="#"
                 class="bg-neutral-primary-soft block max-w-sm p-6 border border-default rounded-base shadow-xs hover:bg-neutral-secondary-medium">
                 <h5 class="mb-3 text-2xl font-semibold tracking-tight text-heading leading-8">Noteworthy technology
