@@ -36,8 +36,13 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::middleware(['project.manager'])->group(function () {
         /*        Route::get('/project/create', [ProjectController::class, 'create'])->name('project.create');
         Route::post('/project', [ProjectController::class, 'store'])->name('project.store'); */
+
+        /* modifica e salvataggio della modifica di un progetto */
         Route::get('/project/{project}/edit', [ProjectController::class, 'edit'])->name('project.edit');
         Route::put('/project/{project}', [ProjectController::class, 'update'])->name('project.update');
+
+        /* eliminazione di un progetto */
+        Route::delete('/project/{project}', [ProjectController::class, 'destroy'])->name('project.destroy');
 
         /* eliminazione dei documenti che ci sono in un progetto */
         Route::delete('/attachments/{attachment}', [ProjectController::class, 'destroyAttachment'])->name('attachment.destroy');

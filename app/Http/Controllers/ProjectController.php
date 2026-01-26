@@ -158,9 +158,26 @@ class ProjectController extends Controller
     /**
      * Remove the specified resource from storage.
      */
-    public function destroy(string $id)
+    public function destroy(Project $project)
     {
-        //
+        $user = auth()->user();
+
+        $member = $project->users()->where('user_id', $user->id)->first();
+        if ($user->role !== 'Admin/PI' && ($member->pivot->project_role ?? null) !== 'Project Manager') {
+            abort(403, 'Non hai i permessi per eliminare questo progetto.');
+        }
+
+        foreach ($project->attachments as $attachment) {
+            if (Storage::disk('public')->exists($attachment->file_path)) {
+                Storage::disk('public')->delete($attachment->file_path);
+            }
+        }
+
+        $project->attachments()->delete();
+
+        $project->delete();
+
+        return redirect()->route('dashboard')->with('success', 'Progetto e relativi allegati eliminati con successo.');
     }
 
     public function destroyAttachment(Attachment $attachment)
