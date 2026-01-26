@@ -33,7 +33,7 @@ class DatabaseSeeder extends Seeder
         Project::factory(70)->create()->each(function ($project) use ($users) {
 
             /* Crea 3 milestone per ogni progetto */
-            $milestones = Milestone::factory(10)->create(['project_id' => $project->id]);
+            $milestones = Milestone::factory(rand(2, 4))->create(['project_id' => $project->id]);
 
             /* Associa casualmente da 2 a 4 utenti al progetto tramite tabella pivot */
             $projectUsers = $users->random(rand(2, 6));

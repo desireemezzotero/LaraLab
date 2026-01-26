@@ -1,5 +1,5 @@
 @extends('.layouts.master')
 
 @section('component')
-    @include('components.component.projectCardShow')
+    @include('.partials.projectCardShow')
 @endsection
