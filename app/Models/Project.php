@@ -7,6 +7,7 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\MorphMany;
+use Illuminate\Database\Eloquent\Relations\MorphOne;
 
 class Project extends Model
 {
@@ -37,6 +38,6 @@ class Project extends Model
     // Relazione polimorfica per i file allegati
     public function attachments(): MorphMany
     {
-        return $this->morphMany(Attachment::class, 'attachable');
+        return $this->MorphMany(Attachment::class, 'attachable');
     }
 }

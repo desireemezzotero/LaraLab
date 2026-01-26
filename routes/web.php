@@ -26,7 +26,22 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
 
     /* pagina dei progetti  */
-    Route::resource('project', ProjectController::class);
+    /*     Route::resource('project', ProjectController::class); */
+
+    Route::get('/project', [ProjectController::class, 'index'])->name('project.index');
+    Route::get('/project/{project}', [ProjectController::class, 'show'])->name('project.show');
+
+    /* SOLO GLI UTENTI ADMIN E PROJECT MANAGER POSSO FARE DETERMINATE COSE */
+
+    Route::middleware(['project.manager'])->group(function () {
+        /*        Route::get('/project/create', [ProjectController::class, 'create'])->name('project.create');
+        Route::post('/project', [ProjectController::class, 'store'])->name('project.store'); */
+        Route::get('/project/{project}/edit', [ProjectController::class, 'edit'])->name('project.edit');
+        Route::put('/project/{project}', [ProjectController::class, 'update'])->name('project.update');
+
+        /* eliminazione dei documenti che ci sono in un progetto */
+        Route::delete('/attachments/{attachment}', [ProjectController::class, 'destroyAttachment'])->name('attachment.destroy');
+    });
 
     // CRUD Pubblicazioni
     /* Route::resource('publications', PublicationController::class); */

@@ -9,6 +9,7 @@
                       <th class="px-6 py-3">Nome Progetto</th>
                       <th class="px-6 py-3">Stato</th>
                       <th class="px-6 py-3">Scadenza</th>
+                      <th class="px-6 py-3">Ruolo nel progetto</th>
                       <th class="px-6 py-3">Azioni</th>
                   </tr>
               </thead>
@@ -28,6 +29,7 @@
                           </td>
 
                           <td class="px-6 py-4">{{ $project->end_date }}</td>
+                          <td class="px-6 py-4">{{ $project->pivot->project_role }}</td>
                           <td class="px-6 py-4">
                               <a href="{{ route('project.show', $project->id) }}"
                                   class="text-emerald-600 hover:underline">Vedi dettagli</a>

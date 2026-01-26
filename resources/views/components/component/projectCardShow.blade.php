@@ -53,13 +53,15 @@
 
         <div class="lg:col-span-1">
 
-            <div class="bg-neutral-primary-soft block max-w-sm p-6 border border-default rounded-base shadow-xs">
+            @foreach ($project->attachments as $attachment)
+                <div class="border p-2 rounded shadow-sm">
+                    <a href="{{ asset('storage/' . $attachment->file_path) }}" target="_blank">
+                        <img src="{{ asset('storage/' . $attachment->file_path) }}" alt="{{ $attachment->file_name }}"
+                            class="w-full h-32 object-cover hover:opacity-80 transition">
+                    </a>
+                </div>
+            @endforeach
 
-                <a href="#">
-                    <img class="rounded-base" src="#" alt="" />
-                    <p>INSERIRE IMMAGINE</p>
-                </a>
-            </div>
 
             <a href="#"
                 class="bg-neutral-primary-soft block max-w-sm p-6 border border-default rounded-base shadow-xs hover:bg-neutral-secondary-medium">
@@ -69,5 +71,9 @@
                     chronological order.</p>
             </a>
         </div>
+
+        <a href="{{ route('project.edit', $project->id) }}">
+            modifica
+        </a>
 
     </div>
