@@ -78,11 +78,13 @@
                         {{ $task->title }}
                     </h4>
                     <div class="flex items-center text-xs text-gray-500 mt-1">
-                        <svg xmlns="http://www.w3.org/2000/svg" class="h-3.5 w-3.5 mr-1" fill="none"
-                            viewBox="0 0 24 24" stroke="currentColor">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
-                        </svg>
+                        <a href="{{ route('task.show', $task->id) }}">
+                            <span
+                                class="inline-flex items-center px-3 py-1 rounded-full text-xs font-bold bg-red-50 text-red-600 border border-red-200">
+                                <span class="w-2 h-2 mr-2 rounded-full bg-red-500"></span>
+                                Visualizza dettagli
+                            </span>
+                        </a>
                     </div>
                 </div>
 
@@ -111,24 +113,24 @@
 
                 {{-- gestione dei tag  --}}
                 <div class="col-span-3 flex justify-center">
-                    @if ($task->status !== 'completed' && $task->status !== 'to_do')
-                        @if ($task->tag === 'lab')
+                    @if ($task->status !== 'completed')
+                        @if ($task->tag == 'lab')
                             <span
                                 class="inline-flex items-center px-3 py-1 rounded-full text-xs font-bold bg-indigo-50 text-indigo-500 border border-indigo-200">
                                 🧪
                                 Laboratorio
                             </span>
-                        @elseif($task->tag === 'writing')
+                        @elseif($task->tag == 'writing')
                             <span
                                 class="inline-flex items-center px-3 py-1 rounded-full text-xs font-bold bg-cyan-50 text-cyan-600 border border-cyan-200">
                                 ✍️ Stesura documenti
                             </span>
-                        @elseif($task->tag === 'research')
+                        @elseif($task->tag == 'research')
                             <span
                                 class="inline-flex items-center px-3 py-1 rounded-full text-xs font-bold bg-amber-50 text-amber-600 border border-amber-200">
                                 🔍 In fase di studio
                             </span>
-                        @elseif($task->tag === 'coding')
+                        @elseif($task->tag == 'coding')
                             <span
                                 class="inline-flex items-center px-3 py-1 rounded-full text-xs font-bold bg-indigo-50 text-indigo-600 border border-indigo-200">
                                 👨‍💻 Sviluppo software

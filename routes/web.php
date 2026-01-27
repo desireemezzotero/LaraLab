@@ -5,6 +5,7 @@ use App\Http\Controllers\MilestoneController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\ProjectController;
 use App\Http\Controllers\PublicationController;
+use App\Http\Controllers\TaskController;
 use Illuminate\Support\Facades\Route;
 
 /*
@@ -31,6 +32,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
     /* rotta accessibile a tutti */
     Route::resource('project', ProjectController::class)->only(['index', 'show']);
 
+    Route::resource('task', TaskController::class)->only(['show', 'edit', 'update']);
 
     /* SOLO GLI UTENTI ADMIN E PROJECT MANAGER POSSO FARE DETERMINATE COSE */
     Route::middleware(['project.manager'])->group(function () {
