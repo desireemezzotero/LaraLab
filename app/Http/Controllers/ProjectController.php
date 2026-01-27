@@ -35,7 +35,17 @@ class ProjectController extends Controller
      */
     public function show(Project $project)
     {
-        $project->load(['users', 'tasks.user', 'publications', 'milestones', 'attachments']);
+        $userId = auth()->id();
+
+        $project->load([
+            'users',
+            'tasks' => function ($query) use ($userId) {
+                $query->where('user_id', $userId);
+            },
+            'tasks.user',
+            'milestones',
+            'attachments'
+        ]);
 
         /* eturn response()->json($project); */
 

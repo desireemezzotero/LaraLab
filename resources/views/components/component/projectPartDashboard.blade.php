@@ -44,4 +44,35 @@
               </tbody>
           </table>
       </div>
+
+
+
+      {{-- PROGETTI COMPLETATI --}}
+      <div class="p-6 border-b border-gray-100">
+          <h3 class="text-lg font-bold text-gray-800">Progetti completati</h3>
+      </div>
+      <div class="overflow-x-auto">
+          <table class="w-full text-sm text-left text-gray-500">
+              <thead class="text-xs text-gray-700 uppercase bg-gray-50">
+                  <tr>
+                      <th class="px-6 py-3">Nome Progetto</th>
+                      <th class="px-6 py-3">Ruolo nel progetto</th>
+                      <th class="px-6 py-3">Azioni</th>
+                  </tr>
+              </thead>
+              <tbody>
+
+                  @foreach ($completedProjects as $project)
+                      <tr class="bg-white border-b hover:bg-gray-50">
+                          <td class="px-6 py-4 font-semibold text-gray-900">{{ $project->title }}</td>
+                          <td class="px-6 py-4">{{ $project->pivot->project_role }}</td>
+                          <td class="px-6 py-4">
+                              <a href="{{ route('project.show', $project->id) }}"
+                                  class="text-emerald-600 hover:underline">Vedi dettagli</a>
+                          </td>
+                      </tr>
+                  @endforeach
+              </tbody>
+          </table>
+      </div>
   </div>

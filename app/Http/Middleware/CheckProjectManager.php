@@ -53,7 +53,11 @@ class CheckProjectManager
         }
 
         if ($request->isMethod('DELETE')) {
-            abort(403, "Solo il PI (Admin) può eliminare un intero progetto.");
+            $routeName = $request->route()->getName();
+
+            if ($routeName === 'project.destroy') {
+                abort(403, "Solo il PI (Admin) può eliminare un intero progetto.");
+            }
         }
 
         $isManager = $project->users()

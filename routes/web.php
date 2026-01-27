@@ -18,7 +18,7 @@ use Illuminate\Support\Facades\Route;
 |
 */
 
-Route::resource('publications', PublicationController::class)->only(['index', 'show'])->names([
+Route::resource('/', PublicationController::class)->only(['index', 'show'])->names([
     'index' => 'publication.index',
     'show' => 'publication.show',
 ]);
@@ -39,7 +39,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
         Route::resource('project', ProjectController::class)->only(['edit', 'update', 'destroy']);
 
         /* Milestone: modifica e cancellazione  */
-        Route::resource('milestones', MilestoneController::class)->only(['edit', 'update', 'destroy']);
+        Route::resource('milestones', MilestoneController::class)->only(['edit', 'update', 'destroy'])->parameters(['milestones' => 'milestone']);
 
         /* Allegati:eliminazione */
         Route::delete('/attachments/{attachment}', [ProjectController::class, 'destroyAttachment'])->name('attachment.destroy');

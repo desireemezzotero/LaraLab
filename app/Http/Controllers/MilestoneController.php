@@ -33,6 +33,7 @@ class MilestoneController extends Controller
         return view('editMilestonePage', compact('milestone'));
     }
 
+
     public function update(Request $request, Milestone $milestone)
     {
 

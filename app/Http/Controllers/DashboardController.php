@@ -15,6 +15,7 @@ class DashboardController extends Controller
 
         /* progetti che hanno come stato on_hold e active */
         $activeProjects = $user->projects()->whereIn('projects.status', ['on_hold', 'active'])->get();
+        $completedProjects = $user->projects()->whereIn('projects.status', ['completed'])->get();
 
         /* scadenze dei progetti entro 7 giorni */
         $upcomingDeadlines = $user->projects()
@@ -33,6 +34,7 @@ class DashboardController extends Controller
         return view('dashboard', compact(
             'user',
             'activeProjects',
+            'completedProjects',
             'upcomingDeadlines',
             'progressPercentageTasks',
             'publicationCount',

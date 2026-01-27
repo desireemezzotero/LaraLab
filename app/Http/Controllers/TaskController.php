@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Task;
 use Illuminate\Http\Request;
 
 class TaskController extends Controller
@@ -41,17 +42,26 @@ class TaskController extends Controller
     /**
      * Show the form for editing the specified resource.
      */
-    public function edit(string $id)
+    public function edit(Task $task)
     {
-        //
+        return view('editTaskPage', compact('task'));
     }
 
     /**
      * Update the specified resource in storage.
      */
-    public function update(Request $request, string $id)
+    public function update(Request $request, Task $task)
     {
-        //
+        $validated = $request->validate([
+            'title'  => 'required|string|max:255',
+            'status' => 'required|in:todo,in_progress,completed',
+            'tag'    => 'required|in:lab,writing,research,coding',
+        ]);
+
+        $task->update($validated);
+
+        return redirect()->route('project.show', $task->project_id)
+            ->with('success', 'Task aggiornato correttamente!');
     }
 
     /**
