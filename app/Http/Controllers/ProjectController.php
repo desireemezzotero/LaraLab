@@ -35,23 +35,33 @@ class ProjectController extends Controller
      */
     public function show(Project $project)
     {
-        $userId = auth()->id();
+        $user = auth()->user();
+        $userId = $user->id;
 
-        $project->load([
-            'users',
-            'tasks' => function ($query) use ($userId) {
-                $query->whereHas('users', function ($q) use ($userId) {
-                    $q->where('users.id', $userId);
-                });
-            },
-            'tasks.users',
-            'milestones',
-            'attachments'
+        $project->load(['users', 'tasks.users', 'milestones', 'attachments']);
+
+        //il ruolo nel progetto
+        $projectMember = $project->users->where('id', $userId)->first();
+        $projectRole = $projectMember ? $projectMember->pivot->project_role : null;
+        $isManager = $user->role === 'Admin/PI' || $projectRole === 'Project Manager';
+
+        $allTasks = $project->tasks;
+
+        $myTasks = $allTasks->filter(function ($task) use ($userId) {
+            return $task->users->contains($userId);
+        });
+
+        $otherTasks = $allTasks->filter(function ($task) use ($userId) {
+            return !$task->users->contains($userId);
+        });
+
+
+        return view('projectShow', [
+            'project' => $project,
+            'myTasks' => $myTasks,
+            'otherTasks' => $otherTasks,
+            'isManager' => $isManager
         ]);
-
-        /* eturn response()->json($project); */
-
-        return view('projectShow', compact('project'));
     }
 
     /**

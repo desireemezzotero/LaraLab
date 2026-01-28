@@ -16,49 +16,93 @@
                     {{ $task->title }}
                 </h4>
 
-                <div class="flex justify-center">
-                    @if ($task->status === 'to_do')
-                        <span
-                            class="inline-flex items-center px-3 py-1 rounded-full text-xs font-bold bg-red-50 text-red-600 border border-red-200">
-                            <span class="w-2 h-2 mr-2 rounded-full bg-red-500"></span> In attesa
-                        </span>
-                    @elseif($task->status === 'completed')
-                        <span
-                            class="inline-flex items-center px-3 py-1 rounded-full text-xs font-bold bg-emerald-50 text-emerald-600 border border-emerald-200">
-                            <span class="w-2 h-2 mr-2 rounded-full bg-emerald-500"></span> Completato
-                        </span>
-                    @elseif($task->status === 'in_progress')
-                        <span
-                            class="inline-flex items-center px-3 py-1 rounded-full text-xs font-bold bg-amber-50 text-amber-600 border border-amber-200">
-                            <span class="w-2 h-2 mr-2 rounded-full bg-amber-500"></span> In corso
-                        </span>
-                    @endif
-                    <div class="col-span-3 flex justify-center ml-2">
-                        @if ($task->status !== 'completed')
-                            @if ($task->tag == 'lab')
+
+
+                {{-- DETTAGLIO, STATO E TAG DEI TASK --}}
+                <div class="flex items-center text-xs text-gray-500 mt-1">
+                    {{-- Dettaglio --}}
+
+                    <a href="{{ route('task.show', $task->id) }}"
+                        class="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-blue-50 text-blue-600 border border-blue-100 hover:bg-blue-100 transition">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-3 w-3 mr-1" fill="none" viewBox="0 0 24 24"
+                            stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
+                        </svg>
+                        Dettagli
+                    </a>
+
+                    {{-- Stato del Task --}}
+                    <div class="col-span-3 flex ml-2 mr-2">
+                        @switch($task->status)
+                            @case('to_do')
                                 <span
-                                    class="inline-flex items-center px-3 py-1 rounded-full text-xs font-bold bg-indigo-50 text-indigo-500 border border-indigo-200">
-                                    🧪
-                                    Laboratorio
+                                    class="inline-flex items-center px-3 py-1 rounded-full text-xs font-bold bg-slate-100 text-slate-600 border border-slate-200">
+                                    <span class="w-2 h-2 mr-2 rounded-full bg-slate-400"></span>
+                                    In attesa
                                 </span>
-                            @elseif($task->tag == 'writing')
-                                <span
-                                    class="inline-flex items-center px-3 py-1 rounded-full text-xs font-bold bg-cyan-50 text-cyan-600 border border-cyan-200">
-                                    ✍️ Stesura documenti
-                                </span>
-                            @elseif($task->tag == 'research')
+                            @break
+
+                            @case('in_progress')
                                 <span
                                     class="inline-flex items-center px-3 py-1 rounded-full text-xs font-bold bg-amber-50 text-amber-600 border border-amber-200">
-                                    🔍 In fase di studio
+                                    <span class="w-2 h-2 mr-2 rounded-full bg-amber-500 animate-pulse"></span>
+                                    In corso
                                 </span>
-                            @elseif($task->tag == 'coding')
+                            @break
+
+                            @case('completed')
                                 <span
-                                    class="inline-flex items-center px-3 py-1 rounded-full text-xs font-bold bg-indigo-50 text-indigo-600 border border-indigo-200">
-                                    👨‍💻 Sviluppo software
+                                    class="inline-flex items-center px-3 py-1 rounded-full text-xs font-bold bg-emerald-50 text-emerald-600 border border-emerald-200">
+                                    <span class="w-2 h-2 mr-2 rounded-full bg-emerald-500"></span>
+                                    Completato
                                 </span>
-                            @endif
-                        @endif
+                            @break
+                        @endswitch
                     </div>
+
+                    {{-- Tag del Task --}}
+                    <div class="col-span-3 flex">
+                        @switch($task->tag)
+                            @case('lab')
+                                <span
+                                    class="inline-flex items-center px-3 py-1 rounded-full text-xs font-bold bg-indigo-50 text-indigo-600 border border-indigo-100">
+                                    🧪 Laboratorio
+                                </span>
+                            @break
+
+                            @case('writing')
+                                <span
+                                    class="inline-flex items-center px-3 py-1 rounded-full text-xs font-bold bg-cyan-50 text-cyan-600 border border-cyan-100">
+                                    ✍️ Scrittura
+                                </span>
+                            @break
+
+                            @case('research')
+                                <span
+                                    class="inline-flex items-center px-3 py-1 rounded-full text-xs font-bold bg-orange-50 text-orange-600 border border-orange-100">
+                                    🔍 Ricerca
+                                </span>
+                            @break
+
+                            @case('coding')
+                                <span
+                                    class="inline-flex items-center px-3 py-1 rounded-full text-xs font-bold bg-blue-50 text-blue-600 border border-blue-100">
+                                    👨‍💻 Sviluppo
+                                </span>
+                            @break
+
+                            @default
+                                <span
+                                    class="inline-flex items-center px-3 py-1 rounded-full text-xs font-bold bg-gray-50 text-gray-600 border border-gray-100">
+                                    📌 Task
+                                </span>
+                        @endswitch
+                    </div>
+
+
                 </div>
             </div>
 
@@ -98,7 +142,8 @@
                 @endforelse
             </div>
 
-            <a href="{{ route('task.edit', $task->id) }}">modifica</a>
+
+
         </div>
     </div>
 </div>
