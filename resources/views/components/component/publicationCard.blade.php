@@ -1,7 +1,7 @@
 <div class="container mx-auto px-4 py-12">
 
     <div class="mb-10">
-        <h2 class="text-3xl font-bold text-heading">Progetti di Ricerca</h2>
+        <h2 class="text-3xl font-bold text-heading">Pubblicazioni</h2>
     </div>
 
     <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">

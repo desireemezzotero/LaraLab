@@ -7,6 +7,13 @@ use Illuminate\Database\Eloquent\Model;
 
 class Comment extends Model
 {
+    protected $fillable = [
+        'body',
+        'task_id',
+        'user_id',
+        'project_id'
+    ];
+
     public function user()
     {
         return $this->belongsTo(User::class);
@@ -15,6 +22,11 @@ class Comment extends Model
     public function task()
     {
         return $this->belongsTo(Task::class);
+    }
+
+    public function project()
+    {
+        return $this->belongsTo(Project::class, 'project_id');
     }
     use HasFactory;
 }

@@ -111,7 +111,7 @@
 
         {{-- SEZIONE DESCRIZIONE --}}
         <div class="mt-4">
-            <h5 class="text-xs font-semibold text-gray-400 uppercase mb-2">Descrizione</h5>
+            <h5 class="text-s font-bold text-gray-400 uppercase mb-2">Descrizione</h5>
             <p class="text-sm text-gray-600 leading-relaxed">
                 {{ $task->description ?: 'Nessuna descrizione disponibile per questo task.' }}
             </p>
@@ -119,31 +119,7 @@
 
         {{-- SEZIONE COMMENTI --}}
         <div class="mt-6 pt-4 border-t border-gray-50">
-            <h5 class="text-xs font-semibold text-gray-400 uppercase mb-3 flex items-center">
-                <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 mr-1" fill="none" viewBox="0 0 24 24"
-                    stroke="currentColor">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                        d="M8 10h.01M12 10h.01M16 10h.01M9 16H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-5l-5 5v-5z" />
-                </svg>
-                Commenti ({{ $task->comments->count() }})
-            </h5>
-
-            <div class="space-y-3">
-                @forelse ($task->comments as $comment)
-                    <div class="bg-gray-50 rounded-lg p-3 border border-gray-100">
-                        <div class="flex justify-between items-center mb-1">
-                            <span class="text-xs font-bold text-gray-700">{{ $comment->user->name }}</span>
-                            <span class="text-[10px] text-gray-400">{{ $comment->created_at->diffForHumans() }}</span>
-                        </div>
-                        <p class="text-xs text-gray-600">{{ $comment->body }}</p>
-                    </div>
-                @empty
-                    <p class="text-xs text-gray-400 italic">Ancora nessun commento.</p>
-                @endforelse
-            </div>
-
-
-
+            @include('components.component.comments')
         </div>
     </div>
 </div>

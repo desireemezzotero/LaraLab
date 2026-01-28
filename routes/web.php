@@ -1,11 +1,13 @@
 <?php
 
+use App\Http\Controllers\CommentController;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\MilestoneController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\ProjectController;
 use App\Http\Controllers\PublicationController;
 use App\Http\Controllers\TaskController;
+use App\Models\Comment;
 use Illuminate\Support\Facades\Route;
 
 /*
@@ -33,6 +35,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::resource('project', ProjectController::class)->only(['index', 'show']);
 
     Route::resource('task', TaskController::class)->only(['show', 'edit', 'update']);
+    Route::resource('/tasks/{task}/comments', CommentController::class);
 
     /* SOLO GLI UTENTI ADMIN E PROJECT MANAGER POSSO FARE DETERMINATE COSE */
     Route::middleware(['project.manager'])->group(function () {
@@ -52,6 +55,8 @@ Route::middleware(['auth', 'verified'])->group(function () {
 
         Route::get('/project/{project}/task/create', [TaskController::class, 'create'])->name('project.task.create');
         Route::post('/project/{project}/task', [TaskController::class, 'store'])->name('project.task.store');
+
+        Route::delete('/comments/{comment}', [CommentController::class, 'destroy'])->name('comments.destroy');
     });
 
     // Profilo Utente
