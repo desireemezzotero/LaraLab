@@ -2,8 +2,10 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Project;
 use App\Models\Task;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 
 class TaskController extends Controller
 {
@@ -18,9 +20,28 @@ class TaskController extends Controller
     /**
      * Show the form for creating a new resource.
      */
-    public function create()
+    public function create(Project $project)
     {
-        //
+        // 1. Carichiamo le relazioni necessarie sull'oggetto già esistente
+        $project->load(['users', 'milestones', 'tasks']);
+
+        // 2. Controllo Accesso: Solo Admin o PM del progetto
+        $userProjectRole = $project->users()
+            ->where('user_id', auth()->id())
+            ->first()?->pivot->project_role;
+
+        $isManager = auth()->user()->role === 'Admin/PI' || $userProjectRole === 'Project Manager';
+
+        if (!$isManager) {
+            abort(403, 'Non hai i permessi per creare task in questo progetto.');
+        }
+
+        // Passiamo i dati alla vista
+        return view('createTaskPage', [
+            'project' => $project,
+            'availableUsers' => $project->users,
+            'milestones' => $project->milestones
+        ]);
     }
 
     /**
@@ -28,8 +49,31 @@ class TaskController extends Controller
      */
     public function store(Request $request)
     {
-        //
+        $validated = $request->validate([
+            'project_id' => 'required|exists:projects,id',
+            'user_id' => 'required|exists:users,id',
+            'milestone_id' => 'required|exists:milestones,id',
+            'title' => 'required|string|max:255',
+            'description' => 'nullable|string',
+            'status' => 'required|in:to_do,in_progress,completed',
+            'tag' => 'required|in:lab,coding,research,writing',
+        ]);
+
+        // Sicurezza ultra per vedere se l'utente scelto d
+        $isMember = DB::table('project_user')
+            ->where('project_id', $request->project_id)
+            ->where('user_id', $request->user_id)
+            ->exists();
+
+        if (!$isMember) {
+            return back()->withErrors(['user_id' => 'L\'utente selezionato non fa parte di questo progetto.']);
+        }
+
+        Task::create($validated);
+
+        return redirect()->route('project.show', $request->project_id)->with('success', 'Task creato!');
     }
+
 
     /**
      * Display the specified resource.
@@ -77,7 +121,7 @@ class TaskController extends Controller
                 'title' => 'required|string|max:255',
                 'description' => 'nullable|string',
                 'status' => 'required|in:to_do,in_progress,completed',
-                'tag' => 'nullable|string',
+                'tag' => 'required|in:lab,coding,research,writing',
             ]);
         } else {
             // Il Collaborator/Research può modificare SOLO lo stato

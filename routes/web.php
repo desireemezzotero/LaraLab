@@ -49,6 +49,9 @@ Route::middleware(['auth', 'verified'])->group(function () {
         /* Milestone: creazione e salvataggio */
         Route::get('/project/{project}/milestones/create', [MilestoneController::class, 'create'])->name('milestones.create');
         Route::post('/project/{project}/milestones', [MilestoneController::class, 'store'])->name('milestones.store');
+
+        Route::get('/project/{project}/task/create', [TaskController::class, 'create'])->name('project.task.create');
+        Route::post('/project/{project}/task', [TaskController::class, 'store'])->name('project.task.store');
     });
 
     // Profilo Utente

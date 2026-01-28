@@ -32,6 +32,17 @@
                 </select>
             </div>
 
+            <div class="mb-4">
+                <label class="block font-bold mb-2 text-blue-600">Tag</label>
+                <select name="tag" class="w-full border-2 border-blue-500 p-2 rounded">
+                    <option value="lab" {{ $task->tah == 'lab' ? 'selected' : '' }}>Laboratorio</option>
+                    <option value="coding" {{ $task->status == 'coding' ? 'selected' : '' }}>Sviluppo software</option>
+                    <option value="research" {{ $task->tag == 'research' ? 'selected' : '' }}>In fase di studio</option>
+                    <option value="writing" {{ $task->tag == 'writing' ? 'selected' : '' }}>Stesura docuemnti
+                    </option>
+                </select>
+            </div>
+
             <div class="mb-6">
                 <label class="block text-gray-700 font-bold mb-2">Descrizione</label>
                 <textarea name="description" rows="4" class="w-full border p-2 rounded">{{ $task->description }}</textarea>
@@ -47,7 +58,8 @@
                 <label class="block font-bold mb-2 text-blue-600">Aggiorna Stato</label>
                 <select name="status" class="w-full border-2 border-blue-500 p-2 rounded">
                     <option value="to_do" {{ $task->status == 'to_do' ? 'selected' : '' }}>In attesa</option>
-                    <option value="in_progress" {{ $task->status == 'in_progress' ? 'selected' : '' }}>In corso</option>
+                    <option value="in_progress" {{ $task->status == 'in_progress' ? 'selected' : '' }}>In corso
+                    </option>
                     <option value="completed" {{ $task->status == 'completed' ? 'selected' : '' }}>Completato</option>
                 </select>
             </div>

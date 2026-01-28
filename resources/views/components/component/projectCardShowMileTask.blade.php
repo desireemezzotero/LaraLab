@@ -65,7 +65,21 @@
 <h2 class="text-lg font-semibold mb-3 flex items-center">
     <span class="flex w-3 h-3 rounded-full mr-2 bg-emerald-500 animate-pulse"></span>
     Task assegnate a te per questo progetto
+
+    {{-- Solo se l'utente è Admin o PM (opzionale se hai già il controllo nel Controller) --}}
+    @if (auth()->user()->role === 'Admin/PI' ||
+            $project->users()->where('user_id', auth()->id())->first()?->pivot->project_role === 'Project Manager')
+        <a href="{{ route('project.task.create', ['project' => $project->id]) }}"
+            class="group ml-2 p-1 hover:bg-gray-100 rounded-full transition-all" title="Crea nuovo task">
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 640"
+                class="fill-current text-gray-700 group-hover:text-blue-600 h-5 w-5">
+                <path
+                    d="M352 128C352 110.3 337.7 96 320 96C302.3 96 288 110.3 288 128L288 288L128 288C110.3 288 96 302.3 96 320C96 337.7 110.3 352 128 352L288 352L288 512C288 529.7 302.3 544 320 544C337.7 544 352 529.7 352 512L352 352L512 352C529.7 352 544 337.7 544 320C544 302.3 529.7 288 512 288L352 288L352 128z" />
+            </svg>
+        </a>
+    @endif
 </h2>
+
 
 
 {{-- TASK ASSEGANTE AL PROGETTO  --}}
