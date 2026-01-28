@@ -68,8 +68,19 @@ class PublicationController extends Controller
     /**
      * Remove the specified resource from storage.
      */
-    public function destroy(string $id)
+    public function destroy(Publication $publication)
     {
-        //
+        if (auth()->user()->role !== 'Admin/PI') {
+            abort(403, 'Azione non autorizzata. Solo il Principal Investigator può eliminare le pubblicazioni.');
+        }
+
+        // 2. Opzionale: Se hai dei file PDF associati, eliminali dallo storage qui
+        // if ($publication->file_path) { Storage::delete($publication->file_path); }
+
+        // 3. Elimina il record (Laravel pulirà anche la tabella pivot se hai messo i vincoli)
+        $publication->delete();
+
+        // 4. Torna alla lista delle pubblicazioni
+        return redirect()->route('publication.index')->with('success', 'Pubblicazione eliminata con successo.');
     }
 }

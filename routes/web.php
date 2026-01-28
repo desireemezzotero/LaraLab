@@ -21,7 +21,7 @@ use Illuminate\Support\Facades\Route;
 |
 */
 
-Route::resource('/', PublicationController::class)->only(['index', 'show'])->names([
+Route::resource('/publication', PublicationController::class)->only(['index', 'show'])->names([
     'index' => 'publication.index',
     'show' => 'publication.show',
 ]);
@@ -32,7 +32,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
 
     /* rotta accessibile a tutti */
-    Route::resource('project', ProjectController::class)->only(['index', 'show']);
+    Route::resource('/project', ProjectController::class)->only(['index', 'show']);
 
     Route::resource('task', TaskController::class)->only(['show', 'edit', 'update']);
     Route::resource('/tasks/{task}/comments', CommentController::class);
@@ -57,6 +57,8 @@ Route::middleware(['auth', 'verified'])->group(function () {
         Route::post('/project/{project}/task', [TaskController::class, 'store'])->name('project.task.store');
 
         Route::delete('/comments/{comment}', [CommentController::class, 'destroy'])->name('comments.destroy');
+
+        Route::delete('/publication/{publication}', [PublicationController::class, 'destroy'])->name('publication.destroy');
     });
 
     // Profilo Utente

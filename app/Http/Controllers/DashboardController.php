@@ -13,6 +13,28 @@ class DashboardController extends Controller
         /** @var \App\Models\User $user */
         $user = auth()->user();
 
+
+        if ($user->role === 'Admin/PI') {
+            return view('dashboardAdmin', [
+                'stats' => [
+                    'projects' => \App\Models\Project::count(),
+                    'tasks' => \App\Models\Task::count(),
+                    'users' => \App\Models\User::count(),
+                    'attachments' => \App\Models\Attachment::count(),
+                ],
+                // Carichiamo 'attachable' invece di 'project'
+                'recentAttachments' => \App\Models\Attachment::with(['attachable'])
+                    ->latest()
+                    ->take(8)
+                    ->get(),
+
+                'recentComments' => \App\Models\Comment::with(['user', 'task.project'])
+                    ->latest()
+                    ->take(8)
+                    ->get(),
+            ]);
+        }
+
         /* progetti che hanno come stato on_hold e active */
         $activeProjects = $user->projects()->whereIn('projects.status', ['on_hold', 'active'])->get();
         $completedProjects = $user->projects()->whereIn('projects.status', ['completed'])->get();
