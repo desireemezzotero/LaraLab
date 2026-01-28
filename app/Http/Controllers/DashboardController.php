@@ -15,23 +15,23 @@ class DashboardController extends Controller
 
 
         if ($user->role === 'Admin/PI') {
+            $totalProjects = \App\Models\Project::count();
+            $completedProj = \App\Models\Project::where('status', 'completed')->count();
+
+            $totalTasks = \App\Models\Task::count();
+            $completedTsk = \App\Models\Task::where('status', 'completed')->count();
+
             return view('dashboardAdmin', [
                 'stats' => [
-                    'projects' => \App\Models\Project::count(),
-                    'tasks' => \App\Models\Task::count(),
+                    'projects' => $totalProjects,
+                    'projects_completed' => $completedProj, // Per il grafico a torta
+                    'tasks' => $totalTasks,
+                    'tasks_completed' => $completedTsk,    // Per la barra progressi
                     'users' => \App\Models\User::count(),
                     'attachments' => \App\Models\Attachment::count(),
                 ],
-                // Carichiamo 'attachable' invece di 'project'
-                'recentAttachments' => \App\Models\Attachment::with(['attachable'])
-                    ->latest()
-                    ->take(8)
-                    ->get(),
-
-                'recentComments' => \App\Models\Comment::with(['user', 'task.project'])
-                    ->latest()
-                    ->take(8)
-                    ->get(),
+                'recentAttachments' => \App\Models\Attachment::with(['attachable'])->latest()->take(8)->get(),
+                'recentComments' => \App\Models\Comment::with(['user', 'task.project'])->latest()->take(8)->get(),
             ]);
         }
 
