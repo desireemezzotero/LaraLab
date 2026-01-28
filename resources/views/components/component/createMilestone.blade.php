@@ -30,12 +30,14 @@
                 <div>
                     <label class="block text-sm font-medium text-gray-700">Data Fine Prevista</label>
                     <input type="date" name="due_date" value="{{ old('due_date') }}"
-                        class="mt-1 block w-full rounded-md border-gray-300 shadow-sm" required>
+                        class="mt-1 block w-full rounded-md border-gray-300 shadow-sm" min="{{ date('Y-m-d') }} "
+                        max="2027-12-31" required>
                 </div>
             </div>
 
 
-            <div class="flex justify-end space-x-3 mt-6">
+            <div class="flex
+                        justify-end space-x-3 mt-6">
                 <a href="{{ route('project.show', $project) }}" class="px-4 py-2 bg-gray-100 rounded-md">Annulla</a>
                 <button type="submit" class="px-4 py-2 bg-blue-600 text-white rounded-md">Salva Modifiche</button>
             </div>

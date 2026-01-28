@@ -40,9 +40,11 @@ class ProjectController extends Controller
         $project->load([
             'users',
             'tasks' => function ($query) use ($userId) {
-                $query->where('user_id', $userId);
+                $query->whereHas('users', function ($q) use ($userId) {
+                    $q->where('users.id', $userId);
+                });
             },
-            'tasks.user',
+            'tasks.users',
             'milestones',
             'attachments'
         ]);

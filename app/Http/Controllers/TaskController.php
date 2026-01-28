@@ -51,7 +51,8 @@ class TaskController extends Controller
     {
         $validated = $request->validate([
             'project_id' => 'required|exists:projects,id',
-            'user_id' => 'required|exists:users,id',
+            'user_ids' => 'required|array',
+            'user_ids.*' => 'exists:users,id',/* controlla che ci sia effettivamente */
             'milestone_id' => 'required|exists:milestones,id',
             'title' => 'required|string|max:255',
             'description' => 'nullable|string',
@@ -59,17 +60,28 @@ class TaskController extends Controller
             'tag' => 'required|in:lab,coding,research,writing',
         ]);
 
-        // Sicurezza ultra per vedere se l'utente scelto d
-        $isMember = DB::table('project_user')
+        $allowedUserIds = DB::table('project_user')
             ->where('project_id', $request->project_id)
-            ->where('user_id', $request->user_id)
-            ->exists();
+            ->pluck('user_id')
+            ->toArray();
 
-        if (!$isMember) {
-            return back()->withErrors(['user_id' => 'L\'utente selezionato non fa parte di questo progetto.']);
+        // Verifichiamo se tra gli utenti scelti ce n'è qualcuno "intruso"
+        foreach ($request->user_ids as $id) {
+            if (!in_array($id, $allowedUserIds)) {
+                return back()->withErrors(['user_ids' => 'Uno o più utenti selezionati non appartengono a questo progetto.'])->withInput();
+            }
         }
 
-        Task::create($validated);
+        $task = Task::create([
+            'project_id'   => $validated['project_id'],
+            'milestone_id' => $validated['milestone_id'],
+            'title'        => $validated['title'],
+            'description'  => $validated['description'],
+            'status'       => $validated['status'],
+            'tag'          => $validated['tag'],
+        ]);
+
+        $task->users()->attach($request->user_ids);
 
         return redirect()->route('project.show', $request->project_id)->with('success', 'Task creato!');
     }
@@ -80,7 +92,7 @@ class TaskController extends Controller
      */
     public function show(Task $task)
     {
-        $task->load(['project', 'milestone', 'user', 'comments.user']);
+        $task->load(['project', 'milestone', 'users', 'comments.user']);
 
         return view('showTaskPage', compact('task'));
     }

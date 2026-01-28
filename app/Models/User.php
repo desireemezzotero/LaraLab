@@ -53,9 +53,9 @@ class User extends Authenticatable
     }
 
     /* Task assegnati all'utente */
-    public function tasks(): HasMany
+    public function tasks(): BelongsToMany
     {
-        return $this->hasMany(Task::class);
+        return $this->belongsToMany(Task::class);
     }
 
     public function comments()

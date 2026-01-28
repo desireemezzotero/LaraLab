@@ -20,7 +20,7 @@ class MilestoneFactory extends Factory
             'project_id' => \App\Models\Project::factory(), // Crea automaticamente un progetto se non esiste
             'title' => fake()->sentence() . ' Review',
             'due_date' => fake()->dateTimeBetween('now', '+6 months'),
-            'status' => fake()->boolean(),
+            'status' => fake()->randomElement(['0', '1']),
         ];
     }
 }

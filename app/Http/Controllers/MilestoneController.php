@@ -16,9 +16,12 @@ class MilestoneController extends Controller
     public function store(Request $request, Project $project)
     {
         $validated = $request->validate([
+
             'title'    => 'required|string|max:255',
             'due_date' => 'required|date',
             'status'   => 'required|boolean',
+        ], [
+            'due_date.after_or_equal' => 'La data della milestone non può essere nel passato.',
         ]);
 
         $project->milestones()->create($validated);
@@ -41,7 +44,9 @@ class MilestoneController extends Controller
             'title' => 'required|string|max:255',
             'due_date' => 'required|date',
             'status' => 'required|boolean',
-        ]);
+        ], [
+            'due_date.after_or_equal' => 'La data della milestone non può essere nel passato.',
+        ]);;
 
         $milestone->update($validated);
 

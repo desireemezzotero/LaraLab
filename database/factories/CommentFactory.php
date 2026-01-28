@@ -17,8 +17,6 @@ class CommentFactory extends Factory
     public function definition(): array
     {
         return [
-            'task_id' => \App\Models\Task::all()->random()->id,
-            'user_id' => \App\Models\User::all()->random()->id,
             'body' => $this->faker->paragraph(),
         ];
     }

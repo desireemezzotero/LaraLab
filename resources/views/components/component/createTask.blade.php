@@ -30,18 +30,27 @@
 
                 {{-- Assegnazione Utente (Membri del Progetto) --}}
                 <div>
-                    <label class="block text-sm text-gray-700 font-bold">Assegna a membro progetto</label>
-                    <select name="user_id" required
-                        class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500">
-                        <option value="">Seleziona un collaboratore...</option>
+                    <label class="block text-sm text-gray-700 font-bold mb-3">Assegna ai membri del progetto</label>
+                    <div
+                        class="grid grid-cols-1 md:grid-cols-2 gap-2 p-4 border rounded-md bg-gray-50 max-h-48 overflow-y-auto">
                         @foreach ($project->users as $user)
-                            <option value="{{ $user->id }}" {{ old('user_id') == $user->id ? 'selected' : '' }}>
-                                {{ $user->name }} ({{ $user->pivot->project_role }})
-                            </option>
+                            <label
+                                class="flex items-center space-x-3 p-2 bg-white rounded shadow-sm border cursor-pointer hover:bg-blue-50 transition">
+                                <input type="checkbox" name="user_ids[]" value="{{ $user->id }}"
+                                    class="rounded text-blue-600 focus:ring-blue-500"
+                                    {{ is_array(old('user_ids')) && in_array($user->id, old('user_ids')) ? 'checked' : '' }}>
+                                <span class="text-sm text-gray-700">
+                                    <span class="font-medium">{{ $user->name }}</span>
+                                    <br>
+                                    <small class="text-gray-500">{{ $user->pivot->project_role }}</small>
+                                </span>
+                            </label>
                         @endforeach
-                    </select>
+                    </div>
+                    @error('user_ids')
+                        <p class="text-red-500 text-xs mt-1">{{ $message }}</p>
+                    @enderror
                 </div>
-
                 {{-- Milestone --}}
                 <div>
                     <label class="block text-sm font-medium text-gray-700">Milestone</label>

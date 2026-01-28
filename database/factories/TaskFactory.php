@@ -22,7 +22,7 @@ class TaskFactory extends Factory
             'status' => fake()->randomElement(['in_progress', 'to_do', 'completed']),
             'tag' => fake()->randomElement(['coding', 'writing', 'lab', 'research']),
             'project_id' => \App\Models\Project::factory(),
-            'user_id' => \App\Models\User::factory(),
+            'milestone_id' => null
         ];
     }
 }
