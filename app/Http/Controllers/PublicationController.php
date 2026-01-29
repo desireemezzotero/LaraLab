@@ -7,80 +7,91 @@ use Illuminate\Http\Request;
 
 class PublicationController extends Controller
 {
-    /**
-     * Display a listing of the resource.
-     */
+    /* TUTTE LE PUBBLICAZIONI */
     public function index()
     {
-        $publicationPublished = Publication::with(['authors' => function ($query) {
-            $query->orderBy('publication_user.position', 'asc');
-        }])
-            ->where('status', 'published')
-            ->latest()
-            ->get();
-        /* return response()->json($publicationPublished); */
-        return view('welcome', compact('publicationPublished'));
+        /** @var \App\Models\User $user */
+        $user = auth()->user();
+
+        // 2. CASO: ADMIN (VEDE TUTTO SENZA FILTRI)
+        if ($user->role === 'Admin/PI') {
+            $stats = [
+                'projects' => \App\Models\Project::count(), // Tutti i progetti
+                'projects_completed' => \App\Models\Project::where('status', 'completed')->count(),
+                'tasks' => \App\Models\Task::count(),
+                'tasks_completed' => \App\Models\Task::where('status', 'completed')->count(),
+                'users' => \App\Models\User::count(),
+                /* 'publications' => \App\Models\Publication::with(['projects', 'authors'])->get(), */
+                'attachments' => \App\Models\Attachment::count(),
+            ];
+
+            $publications = \App\Models\Publication::with(['projects', 'authors'])->latest()->get();
+            $projectsList = \App\Models\Project::latest()->get();
+
+            return view('dashboardPublicationAdmin', compact('stats', 'projectsList', 'publications'));
+        } elseif (!auth()->check()) {
+            $publicationPublished = \App\Models\Publication::with(['authors'])
+                ->where('status', 'published')
+                ->latest()
+                ->get();
+
+            return view('welcome', compact('publicationPublished'));
+        }
     }
 
 
-    /**
-     * Show the form for creating a new resource.
-     */
+
+    /*   FORM PER NUOVA PUBBLICAZIONE */
     public function create()
     {
         //
     }
 
-    /**
-     * Store a newly created resource in storage.
-     */
+    /* CREARE UNA NUOVA PUBBLCIAZIONE */
     public function store(Request $request)
     {
         //
     }
 
-    /**
-     * Display the specified resource.
-     */
+    /* VISUALIZZAZIONE DI UNA PUBBLICAZIONE */
     public function show(Publication $publication)
     {
-        $publication->load(['authors', 'attachments']);
-        /*  return response()->json($publication); */
-        return view('publishDetail', compact('publication'));
+        $user = auth()->user();
+
+        if ($user->role === 'Admin/PI') {
+            $publication->load(['projects', 'authors', 'attachments']);
+
+            return view('publishDetail', compact('publication'));
+        } elseif (!auth()->check()) {
+            $publication->load(['authors', 'attachments']);
+
+
+            return view('publishDetail', compact('publication'));
+        }
     }
 
-    /**
-     * Show the form for editing the specified resource.
-     */
+
+
     public function edit(string $id)
     {
         //
     }
 
-    /**
-     * Update the specified resource in storage.
-     */
+
     public function update(Request $request, string $id)
     {
         //
     }
 
-    /**
-     * Remove the specified resource from storage.
-     */
+    /* ELIMINAZIONE DELLA PUBBLICAZIONE */
     public function destroy(Publication $publication)
     {
         if (auth()->user()->role !== 'Admin/PI') {
             abort(403, 'Azione non autorizzata. Solo il Principal Investigator può eliminare le pubblicazioni.');
         }
-
-        // 2. Opzionale: Se hai dei file PDF associati, eliminali dallo storage qui
-        // if ($publication->file_path) { Storage::delete($publication->file_path); }
-
-        // 3. Elimina il record (Laravel pulirà anche la tabella pivot se hai messo i vincoli)
+        $publication->projects()->detach();
         $publication->delete();
 
-        // 4. Torna alla lista delle pubblicazioni
         return redirect()->route('publication.index')->with('success', 'Pubblicazione eliminata con successo.');
     }
 }

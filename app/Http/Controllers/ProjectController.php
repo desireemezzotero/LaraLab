@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\Attachment;
 use App\Models\Project;
+use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
 
@@ -14,25 +15,84 @@ class ProjectController extends Controller
      */
     public function index() {}
 
-    /**
-     * Show the form for creating a new resource.
-     */
-    public function create()
+    /* FORM DI AGGIUNTA DI UN PROGETTO */
+    public function create(Request $request)
     {
-        //
+        $publicationId = $request->query('publication_id');
+        $users = User::all();
+        return view('projectCreate', compact('publicationId', 'users'));
     }
 
-    /**
-     * Store a newly created resource in storage.
-     */
+
+
+    /* AGGIUNTA DI UN PROGETTO */
     public function store(Request $request)
     {
-        //
+        // 2. Controllo di sicurezza anche in fase di salvataggio
+        if (auth()->user()->role !== 'Admin/PI') {
+            abort(403, 'Azione non autorizzata.');
+        }
+
+        // 3. Validazione
+        $validated = $request->validate([
+            'title' => 'required|string|max:255',
+            'description' => 'required|string',
+            'objectives' => 'required|string',
+            'start_date' => 'required|date',
+            'end_date' => 'nullable|date|after_or_equal:start_date',
+            'status' => 'required|in:active,on_hold,completed',
+            'publication_id' => 'nullable|exists:publications,id',
+            'users' => 'required|array|min:2', // Almeno un utente deve essere assegnato
+            'users.*' => 'exists:users,id',
+            'project_roles' => 'required|array',
+            'attachments.*' => 'nullable|file|mimes:pdf,jpg,png|max:5120',
+        ]);
+
+        // 4. Creazione Progetto
+        $project = Project::create([
+            'title' => $validated['title'],
+            'description' => $validated['description'],
+            'objectives' => $validated['objectives'],
+            'status' => $validated['status'],
+            'start_date' => $validated['start_date'],
+            'end_date' => $validated['end_date'],
+        ]);
+
+        // 5. Associazione Team con Ruoli Pivot
+        $syncData = [];
+        foreach ($validated['users'] as $userId) {
+            $role = $request->project_roles[$userId] ?? 'Member';
+            $syncData[$userId] = ['project_role' => $role];
+        }
+        $project->users()->attach($syncData);
+
+        // 6. Associazione Pubblicazione (se presente)
+        if ($validated['publication_id']) {
+            $project->publications()->attach($validated['publication_id']);
+        }
+
+        // 7. Allegati
+        if ($request->hasFile('attachments')) {
+            foreach ($request->file('attachments') as $file) {
+                $path = $file->store('attachments', 'public');
+                $project->attachments()->create([
+                    'file_path' => $path,
+                    'file_name' => $file->getClientOriginalName(),
+                ]);
+            }
+        }
+
+        // Redirect alla pubblicazione se esistente, altrimenti alla dashboard
+        if ($validated['publication_id']) {
+            return redirect()->route('publication.show', $validated['publication_id'])
+                ->with('success', 'Progetto creato e team assegnato con successo.');
+        }
+
+        return redirect()->route('dashboard')->with('success', 'Progetto creato con successo.');
     }
 
-    /**
-     * Display the specified resource.
-     */
+
+    /* VISTA DEL PROGETTO */
     public function show(Project $project)
     {
         $user = auth()->user();
@@ -64,9 +124,7 @@ class ProjectController extends Controller
         ]);
     }
 
-    /**
-     * Show the form for editing the specified resource.
-     */
+    /* FORM PER LA MODIFICA DEL PROGETTO */
     public function edit(Project $project)
     {
         $user = auth()->user();
@@ -82,53 +140,7 @@ class ProjectController extends Controller
         return view('editProgectPage', compact('project'));
     }
 
-
-    /**
-     * Update the specified resource in storage.
-     */
-    /*  public function update(Request $request, Project $project)
-    {
-
-        $user = auth()->user();
-        $projectRole = $project->users()->where('user_id', $user->id)->first()?->pivot->project_role;
-
-        if ($user->role !== 'Admin/PI' && $projectRole !== 'Project Manager') {
-            abort(403, 'Non hai i permessi per modificare questo progetto.');
-        }
-
-        $validated = $request->validate([
-            'title' => 'required|string|max:255',
-            'description' => 'required|string',
-            'status' => 'required|in:active,on_hold,completed',
-            'end_date' => 'nullable|date',
-            'attachment' => 'nullable|file|mimes:jpg,jpeg,png,pdf|max:5120',
-        ]);
-
-        $project->update([
-            'title' => $validated['title'],
-            'description' => $validated['description'],
-            'status' => $validated['status'],
-            'end_date' => $validated['end_date'],
-        ]);
-
-        if ($request->hasFile('attachment')) {
-
-            if ($project->attachment) {
-                Storage::disk('public')->delete($project->attachment->file_path);
-                $project->attachment->delete();
-            }
-
-            $path = $request->file('attachments')->store('attachments', 'public');
-
-            $project->attachment()->create([
-                'file_path' => $path,
-                'file_name' => $request->file('attachments')->getClientOriginalName(),
-            ]);
-        }
-
-        return redirect()->route('project.show', $project)->with('success', 'Progetto aggiornato con successo!');
-    } */
-
+    /* MODIFICA DEL PROGETTO */
     public function update(Request $request, Project $project)
     {
         $user = auth()->user();
@@ -173,6 +185,19 @@ class ProjectController extends Controller
             }
         }
 
+        if ($user->role === 'Admin/PI') {
+            // Recuperiamo la prima pubblicazione associata a questo progetto
+            $publication = $project->publications()->first();
+
+            // Se esiste una pubblicazione correlata, torna lì, altrimenti torna alla dashboard
+            if ($publication) {
+                return redirect()->route('publication.show', $publication->id)
+                    ->with('success', 'Progetto aggiornato. Tornato alla pubblicazione.');
+            }
+
+            return redirect()->route('dashboard')->with('success', 'Progetto aggiornato.');
+        }
+
         return redirect()->route('project.show', $project->id)
             ->with('success', 'Progetto e allegati aggiornati con successo!');
     }
@@ -182,17 +207,28 @@ class ProjectController extends Controller
     {
         $user = auth()->user();
 
-        $member = $project->users()->where('user_id', $user->id)->first();
+        $isManager = $project->users()->where('user_id', $user->id)->wherePivot('project_role', 'Project Manager')->exists();
+        if ($user->role !== 'Admin/PI' && !$isManager) {
+            abort(403);
+        }
 
+        $publicationId =   $project->publications()->first()?->id;
+        // 2. Elimina i file fisici (Solo quelli del PROGETTO)
         foreach ($project->attachments as $attachment) {
             if (Storage::disk('public')->exists($attachment->file_path)) {
                 Storage::disk('public')->delete($attachment->file_path);
             }
         }
 
+        $project->users()->detach();
+        $project->publications()->detach();
         $project->attachments()->delete();
-
         $project->delete();
+
+        if ($user->role === 'Admin/PI') {
+            return redirect()->route('publication.show', $publicationId)
+                ->with('success', 'Progetto eliminato con successo dalla pubblicazione.');
+        }
 
         return redirect()->route('dashboard')->with('success', 'Progetto e relativi allegati eliminati con successo.');
     }

@@ -32,16 +32,16 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
 
     /* rotta accessibile a tutti */
-    Route::resource('/project', ProjectController::class)->only(['index', 'show']);
+    Route::resource('/project', ProjectController::class);
 
     Route::resource('task', TaskController::class)->only(['show', 'edit', 'update']);
     Route::resource('/tasks/{task}/comments', CommentController::class);
 
+    /* PROGETTO: modifica e cancellazione */
+    /*  Route::resource('project', ProjectController::class)->only(['edit', 'update', 'destroy', 'create', 'store']); */
     /* SOLO GLI UTENTI ADMIN E PROJECT MANAGER POSSO FARE DETERMINATE COSE */
     Route::middleware(['project.manager'])->group(function () {
 
-        /* PROGETTO: modifica e cancellazione */
-        Route::resource('project', ProjectController::class)->only(['edit', 'update', 'destroy']);
 
         /* Milestone: modifica e cancellazione  */
         Route::resource('milestones', MilestoneController::class)->only(['edit', 'update', 'destroy'])->parameters(['milestones' => 'milestone']);

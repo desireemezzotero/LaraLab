@@ -59,6 +59,8 @@
                         <p class="text-[11px] font-bold text-slate-400 uppercase tracking-widest mt-1 mb-6">
                             {{ $label }}</p>
 
+                        <a href="{{ route('publication.index') }}">prova</a>
+
                         {{-- Mostra il grafico SOLO se è un Progetto o un Task --}}
                         @if ($percentage !== null)
                             <div class="w-full max-w-[140px]">
