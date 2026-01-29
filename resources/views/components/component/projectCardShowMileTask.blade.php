@@ -52,7 +52,7 @@
                         </span>
                     @endif
                 </div>
-                @if (auth()->user()->role === 'Admin/PI' || $currentUserProjectRole === 'Project Manager')
+                @if ($isManager)
                     <div class="col-span-3 flex justify-end space-x-4">
                         @include('components.component.milestoneIconModify')
                     </div>
@@ -79,7 +79,6 @@
             </svg>
         </a>
     </h2>
-
     @foreach ($otherTasks as $task)
         <div class="px-6 mb-4">
             <div class="bg-white border border-gray-200 rounded-xl shadow-sm p-4 hover:border-blue-300 transition-all">
@@ -181,120 +180,122 @@
 
 
 
-{{-- TASK ASSEGANTE A ME  --}}
-<h2 class="text-lg font-semibold mb-3 flex items-center">
-    <span class="flex w-3 h-3 rounded-full mr-2"></span>
-    🚀 Task assegnati a me
-</h2>
+@if (auth()->user()->role !== 'Admin/PI')
+    {{-- TASK ASSEGANTE A ME  --}}
+    <h2 class="text-lg font-semibold mb-3 flex items-center">
+        <span class="flex w-3 h-3 rounded-full mr-2"></span>
+        🚀 Task assegnati a me
+    </h2>
 
-@forelse ($myTasks as $task)
-    <div class="px-6 mb-4">
-        <div
-            class="bg-white border border-gray-200 rounded-xl shadow-sm p-4 hover:border-blue-300 hover:shadow-md transition-all">
-            <div class="grid grid-cols-12 items-center w-full gap-4">
+    @forelse ($myTasks as $task)
+        <div class="px-6 mb-4">
+            <div
+                class="bg-white border border-gray-200 rounded-xl shadow-sm p-4 hover:border-blue-300 hover:shadow-md transition-all">
+                <div class="grid grid-cols-12 items-center w-full gap-4">
 
-                {{-- Info Task --}}
-                <div class="col-span-6">
-                    <h4 class="text-base font-bold text-gray-800 tracking-tight truncate">
-                        {{ $task->title }}
-                    </h4>
-                    <div class="flex items-center mt-2 space-x-2">
-                        <a href="{{ route('task.show', $task->id) }}"
-                            class="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-blue-50 text-blue-600 border border-blue-100 hover:bg-blue-100 transition">
-                            <svg xmlns="http://www.w3.org/2000/svg" class="h-3 w-3 mr-1" fill="none"
-                                viewBox="0 0 24 24" stroke="currentColor">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                    d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                    d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
-                            </svg>
-                            Dettagli
-                        </a>
+                    {{-- Info Task --}}
+                    <div class="col-span-6">
+                        <h4 class="text-base font-bold text-gray-800 tracking-tight truncate">
+                            {{ $task->title }}
+                        </h4>
+                        <div class="flex items-center mt-2 space-x-2">
+                            <a href="{{ route('task.show', $task->id) }}"
+                                class="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-blue-50 text-blue-600 border border-blue-100 hover:bg-blue-100 transition">
+                                <svg xmlns="http://www.w3.org/2000/svg" class="h-3 w-3 mr-1" fill="none"
+                                    viewBox="0 0 24 24" stroke="currentColor">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                        d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                        d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
+                                </svg>
+                                Dettagli
+                            </a>
+                        </div>
+                    </div>
+
+                    {{-- Stato del Task --}}
+                    <div class="col-span-3 flex justify-center">
+                        @switch($task->status)
+                            @case('to_do')
+                                <span
+                                    class="inline-flex items-center px-3 py-1 rounded-full text-xs font-bold bg-slate-100 text-slate-600 border border-slate-200">
+                                    <span class="w-2 h-2 mr-2 rounded-full bg-slate-400"></span>
+                                    In attesa
+                                </span>
+                            @break
+
+                            @case('in_progress')
+                                <span
+                                    class="inline-flex items-center px-3 py-1 rounded-full text-xs font-bold bg-amber-50 text-amber-600 border border-amber-200">
+                                    <span class="w-2 h-2 mr-2 rounded-full bg-amber-500 animate-pulse"></span>
+                                    In corso
+                                </span>
+                            @break
+
+                            @case('completed')
+                                <span
+                                    class="inline-flex items-center px-3 py-1 rounded-full text-xs font-bold bg-emerald-50 text-emerald-600 border border-emerald-200">
+                                    <span class="w-2 h-2 mr-2 rounded-full bg-emerald-500"></span>
+                                    Completato
+                                </span>
+                            @break
+                        @endswitch
+                    </div>
+
+                    {{-- Tag del Task --}}
+                    <div class="col-span-3 flex justify-end">
+                        @switch($task->tag)
+                            @case('lab')
+                                <span
+                                    class="inline-flex items-center px-3 py-1 rounded-full text-xs font-bold bg-indigo-50 text-indigo-600 border border-indigo-100">
+                                    🧪 Laboratorio
+                                </span>
+                            @break
+
+                            @case('writing')
+                                <span
+                                    class="inline-flex items-center px-3 py-1 rounded-full text-xs font-bold bg-cyan-50 text-cyan-600 border border-cyan-100">
+                                    ✍️ Scrittura
+                                </span>
+                            @break
+
+                            @case('research')
+                                <span
+                                    class="inline-flex items-center px-3 py-1 rounded-full text-xs font-bold bg-orange-50 text-orange-600 border border-orange-100">
+                                    🔍 Ricerca
+                                </span>
+                            @break
+
+                            @case('coding')
+                                <span
+                                    class="inline-flex items-center px-3 py-1 rounded-full text-xs font-bold bg-blue-50 text-blue-600 border border-blue-100">
+                                    👨‍💻 Sviluppo
+                                </span>
+                            @break
+
+                            @default
+                                <span
+                                    class="inline-flex items-center px-3 py-1 rounded-full text-xs font-bold bg-gray-50 text-gray-600 border border-gray-100">
+                                    📌 Task
+                                </span>
+                        @endswitch
                     </div>
                 </div>
-
-                {{-- Stato del Task --}}
-                <div class="col-span-3 flex justify-center">
-                    @switch($task->status)
-                        @case('to_do')
-                            <span
-                                class="inline-flex items-center px-3 py-1 rounded-full text-xs font-bold bg-slate-100 text-slate-600 border border-slate-200">
-                                <span class="w-2 h-2 mr-2 rounded-full bg-slate-400"></span>
-                                In attesa
-                            </span>
-                        @break
-
-                        @case('in_progress')
-                            <span
-                                class="inline-flex items-center px-3 py-1 rounded-full text-xs font-bold bg-amber-50 text-amber-600 border border-amber-200">
-                                <span class="w-2 h-2 mr-2 rounded-full bg-amber-500 animate-pulse"></span>
-                                In corso
-                            </span>
-                        @break
-
-                        @case('completed')
-                            <span
-                                class="inline-flex items-center px-3 py-1 rounded-full text-xs font-bold bg-emerald-50 text-emerald-600 border border-emerald-200">
-                                <span class="w-2 h-2 mr-2 rounded-full bg-emerald-500"></span>
-                                Completato
-                            </span>
-                        @break
-                    @endswitch
-                </div>
-
-                {{-- Tag del Task --}}
-                <div class="col-span-3 flex justify-end">
-                    @switch($task->tag)
-                        @case('lab')
-                            <span
-                                class="inline-flex items-center px-3 py-1 rounded-full text-xs font-bold bg-indigo-50 text-indigo-600 border border-indigo-100">
-                                🧪 Laboratorio
-                            </span>
-                        @break
-
-                        @case('writing')
-                            <span
-                                class="inline-flex items-center px-3 py-1 rounded-full text-xs font-bold bg-cyan-50 text-cyan-600 border border-cyan-100">
-                                ✍️ Scrittura
-                            </span>
-                        @break
-
-                        @case('research')
-                            <span
-                                class="inline-flex items-center px-3 py-1 rounded-full text-xs font-bold bg-orange-50 text-orange-600 border border-orange-100">
-                                🔍 Ricerca
-                            </span>
-                        @break
-
-                        @case('coding')
-                            <span
-                                class="inline-flex items-center px-3 py-1 rounded-full text-xs font-bold bg-blue-50 text-blue-600 border border-blue-100">
-                                👨‍💻 Sviluppo
-                            </span>
-                        @break
-
-                        @default
-                            <span
-                                class="inline-flex items-center px-3 py-1 rounded-full text-xs font-bold bg-gray-50 text-gray-600 border border-gray-100">
-                                📌 Task
-                            </span>
-                    @endswitch
-                </div>
             </div>
         </div>
-    </div>
-    @empty
-        <div class="px-6">
-            <div
-                class="flex flex-col items-center justify-center p-8 bg-gray-50 rounded-xl border-2 border-dashed border-gray-200">
-                <svg xmlns="http://www.w3.org/2000/svg" class="h-10 w-10 text-gray-300 mb-3" fill="none"
-                    viewBox="0 0 24 24" stroke="currentColor">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                        d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
-                </svg>
-                <p class="text-gray-500 italic text-sm text-center">
-                    Non hai task
-                </p>
+        @empty
+            <div class="px-6">
+                <div
+                    class="flex flex-col items-center justify-center p-8 bg-gray-50 rounded-xl border-2 border-dashed border-gray-200">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-10 w-10 text-gray-300 mb-3" fill="none"
+                        viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                            d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
+                    </svg>
+                    <p class="text-gray-500 italic text-sm text-center">
+                        Non hai task
+                    </p>
+                </div>
             </div>
-        </div>
-    @endforelse
+        @endforelse
+    @endif

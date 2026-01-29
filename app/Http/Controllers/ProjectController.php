@@ -10,9 +10,7 @@ use Illuminate\Support\Facades\Storage;
 
 class ProjectController extends Controller
 {
-    /**
-     * Display a listing of the resource.
-     */
+
     public function index() {}
 
     /* FORM DI AGGIUNTA DI UN PROGETTO */
@@ -22,8 +20,6 @@ class ProjectController extends Controller
         $users = User::all();
         return view('projectCreate', compact('publicationId', 'users'));
     }
-
-
 
     /* AGGIUNTA DI UN PROGETTO */
     public function store(Request $request)
@@ -238,22 +234,38 @@ class ProjectController extends Controller
 
     public function destroyAttachment(Attachment $attachment)
     {
-
-        $project = $attachment->attachable;
         $user = auth()->user();
+        $owner = $attachment->attachable; // Può essere un Project o una Publication
 
-        $member = $project->users()->where('user_id', $user->id)->first();
-        if ($user->role !== 'Admin/PI' && ($member->pivot->project_role ?? null) !== 'Project Manager') {
-            abort(403);
+        // 1. Controllo Permessi Dinamico
+        if ($user->role !== 'Admin/PI') {
+            // Se è un progetto, controlliamo se l'utente è Project Manager
+            if ($attachment->attachable_type === \App\Models\Project::class) {
+                $member = $owner->users()->where('user_id', $user->id)->first();
+                if (($member->pivot->project_role ?? null) !== 'Project Manager') {
+                    abort(403);
+                }
+            } else {
+                // Se è una pubblicazione e non sei Admin, non puoi cancellare
+                abort(403);
+            }
         }
 
+        // 2. Eliminazione Fisica del File
         if (Storage::disk('public')->exists($attachment->file_path)) {
             Storage::disk('public')->delete($attachment->file_path);
         }
 
+        // 3. Eliminazione Record
         $attachment->delete();
 
-        return redirect()->route('project.edit', $project->id)
-            ->with('success', 'Immagine rimossa con successo.');
+        // 4. Redirect Dinamico
+        if ($attachment->attachable_type === \App\Models\Project::class) {
+            return redirect()->route('project.edit', $owner->id)
+                ->with('success', 'Allegato progetto rimosso.');
+        }
+
+        return redirect()->route('publication.edit', $owner->id)
+            ->with('success', 'Allegato pubblicazione rimosso.');
     }
 }

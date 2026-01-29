@@ -34,6 +34,10 @@ Route::middleware(['auth', 'verified'])->group(function () {
 
     Route::resource('/publication', PublicationController::class);
 
+
+    /* Allegati:eliminazione */
+    Route::delete('/attachments/{attachment}', [ProjectController::class, 'destroyAttachment'])->name('attachment.destroy');
+
     /* SOLO GLI UTENTI ADMIN E PROJECT MANAGER POSSO FARE DETERMINATE COSE */
     Route::middleware(['project.manager'])->group(function () {
 
@@ -41,8 +45,6 @@ Route::middleware(['auth', 'verified'])->group(function () {
         /* Milestone: modifica e cancellazione  */
         Route::resource('milestones', MilestoneController::class)->only(['edit', 'update', 'destroy'])->parameters(['milestones' => 'milestone']);
 
-        /* Allegati:eliminazione */
-        Route::delete('/attachments/{attachment}', [ProjectController::class, 'destroyAttachment'])->name('attachment.destroy');
 
         /* Milestone: creazione e salvataggio */
         Route::get('/project/{project}/milestones/create', [MilestoneController::class, 'create'])->name('milestones.create');

@@ -77,14 +77,14 @@ class PublicationController extends Controller
             'status' => $validated['status'],
         ]);
 
-        // 2. Poi fai il ciclo solo per preparare i dati della pivot
+        // preparare i dati della pivot
         $authorData = [];
         foreach ($validated['authors'] as $userId) {
             $authorData[$userId] = ['position' => $validated['positions'][$userId] ?? 1];
         }
         $publication->authors()->attach($authorData);
 
-        // Gestione Allegati (Polimorfica)
+        // Gestione Allegati 
         if ($request->hasFile('attachments')) {
             foreach ($request->file('attachments') as $file) {
                 $path = $file->store('publications_files', 'public');
@@ -118,15 +118,64 @@ class PublicationController extends Controller
 
 
 
-    public function edit(string $id)
+    public function edit(Publication $publication)
     {
-        //
+        if (auth()->user()->role !== 'Admin/PI') {
+            abort(403);
+        }
+
+        $users = \App\Models\User::all();
+
+        $currentAuthors = $publication->authors->pluck('id')->toArray();
+
+        return view('publicationEdit', compact('publication', 'users', 'currentAuthors'));
     }
 
 
-    public function update(Request $request, string $id)
+    public function update(Request $request, Publication $publication)
     {
-        //
+        if (auth()->user()->role !== 'Admin/PI') {
+            abort(403);
+        }
+
+        $validated = $request->validate([
+            'title' => 'required|string|max:255',
+            'description' => 'required|string',
+            'status' => 'required|in:drafting,submitted,accepted,published',
+            'authors' => 'required|array|min:1',
+            'positions' => 'required|array',
+            'attachments.*' => 'nullable|file|mimes:pdf,jpg,png,docx|max:5120',
+        ]);
+
+        // 1. Aggiorna i dati base
+        $publication->update([
+            'title' => $validated['title'],
+            'description' => $validated['description'],
+            'status' => $validated['status'],
+        ]);
+
+        // 2. Sincronizza gli Autori (Gestisce aggiunte, rimozioni e cambi posizione)
+        $syncData = [];
+        foreach ($validated['authors'] as $userId) {
+            $syncData[$userId] = [
+                'position' => $validated['positions'][$userId] ?? 1
+            ];
+        }
+        $publication->authors()->sync($syncData);
+
+        // 3. Aggiunta nuovi allegati (senza cancellare i vecchi)
+        if ($request->hasFile('attachments')) {
+            foreach ($request->file('attachments') as $file) {
+                $path = $file->store('publications_files', 'public');
+                $publication->attachments()->create([
+                    'file_path' => $path,
+                    'file_name' => $file->getClientOriginalName(),
+                ]);
+            }
+        }
+
+        return redirect()->route('publication.show', $publication->id)
+            ->with('success', 'Pubblicazione aggiornata correttamente!');
     }
 
     /* ELIMINAZIONE DELLA PUBBLICAZIONE */
