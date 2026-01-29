@@ -44,13 +44,59 @@ class PublicationController extends Controller
     /*   FORM PER NUOVA PUBBLICAZIONE */
     public function create()
     {
-        //
+        if (auth()->user()->role !== 'Admin/PI') {
+            abort(403);
+        }
+
+        $users = \App\Models\User::all();
+        return view('publishCreate', compact('users'));
     }
 
-    /* CREARE UNA NUOVA PUBBLCIAZIONE */
+    /* CREARE UNA NUOVA PUBBLICAZIONE */
     public function store(Request $request)
     {
-        //
+        if (auth()->user()->role !== 'Admin/PI') {
+            abort(403);
+        }
+
+        // Validazione
+        $validated = $request->validate([
+            'title' => 'required|string|max:255',
+            'description' => 'required|string',
+            'status' => 'required|in:drafting,submitted,accepted,published',
+            'authors' => 'required|array|min:1',
+            'authors.*' => 'exists:users,id',
+            'positions' => 'required|array',
+            'attachments.*' => 'nullable|file|mimes:pdf,jpg,png,docx|max:5120',
+        ]);
+
+        // Creazione Pubblicazione
+        $publication = Publication::create([
+            'title' => $validated['title'],
+            'description' => $validated['description'],
+            'status' => $validated['status'],
+        ]);
+
+        // 2. Poi fai il ciclo solo per preparare i dati della pivot
+        $authorData = [];
+        foreach ($validated['authors'] as $userId) {
+            $authorData[$userId] = ['position' => $validated['positions'][$userId] ?? 1];
+        }
+        $publication->authors()->attach($authorData);
+
+        // Gestione Allegati (Polimorfica)
+        if ($request->hasFile('attachments')) {
+            foreach ($request->file('attachments') as $file) {
+                $path = $file->store('publications_files', 'public');
+                $publication->attachments()->create([
+                    'file_path' => $path,
+                    'file_name' => $file->getClientOriginalName(),
+                ]);
+            }
+        }
+
+        return redirect()->route('publication.show', $publication->id)
+            ->with('success', 'Pubblicazione creata con successo!');
     }
 
     /* VISUALIZZAZIONE DI UNA PUBBLICAZIONE */

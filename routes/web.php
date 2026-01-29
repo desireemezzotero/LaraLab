@@ -21,11 +21,6 @@ use Illuminate\Support\Facades\Route;
 |
 */
 
-Route::resource('/publication', PublicationController::class)->only(['index', 'show'])->names([
-    'index' => 'publication.index',
-    'show' => 'publication.show',
-]);
-
 Route::middleware(['auth', 'verified'])->group(function () {
 
     /* pagina dell'utente quando effettua il login */
@@ -37,8 +32,8 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::resource('task', TaskController::class)->only(['show', 'edit', 'update']);
     Route::resource('/tasks/{task}/comments', CommentController::class);
 
-    /* PROGETTO: modifica e cancellazione */
-    /*  Route::resource('project', ProjectController::class)->only(['edit', 'update', 'destroy', 'create', 'store']); */
+    Route::resource('/publication', PublicationController::class);
+
     /* SOLO GLI UTENTI ADMIN E PROJECT MANAGER POSSO FARE DETERMINATE COSE */
     Route::middleware(['project.manager'])->group(function () {
 
