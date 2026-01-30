@@ -28,7 +28,13 @@
                         <a href="{{ route('login') }}" class="block px-4 py-2 text-sm">Accedi</a>
                     </li>
                     <li>
-                        <a href="{{ route('register') }}" class="block px-4 py-2 text-sm">Registrati</a>
+                        <form method="POST" action="{{ route('logout') }}">
+                            @csrf
+                            <button type="submit"
+                                class="block w-full text-left px-4 py-2 text-sm text-red-600 hover:bg-gray-100 font-bold">
+                                Disconnetti
+                            </button>
+                        </form>
                     </li>
                 </ul>
             </div>
@@ -52,21 +58,12 @@
                     <a href="{{ route('publication.index') }}" class="block py-2 px-3 rounded-sm md:bg-transparent"
                         aria-current="page">Home</a>
                 </li>
-                <li>
-                    <a href="#" class="block py-2 px-3 rounded-sm md:bg-transparent"
-                        aria-current="page">Progetti</a>
-                </li>
-                <li>
-                    <a href="#" class="block py-2 px-3 rounded-sm md:bg-transparent"
-                        aria-current="page">Pubblicazioni</a>
-                </li>
-                {{--  <!--  @auth
-        @if (auth()->user()->remember_token === auth()->user()->remember_token)
-        <li>
-          <a href="{{route('film.create')}}" class="block py-2 px-3 text-white rounded-sm md:bg-transparent" aria-current="page">Create</a>
-        </li>
-        @endif
-        @endauth --> --}}
+
+                @auth
+                    <li>
+                        <a href="{{ route('dashboard') }}" class="block py-2 px-3">Profilo</a>
+                    </li>
+                @endauth
             </ul>
         </div>
     </div>

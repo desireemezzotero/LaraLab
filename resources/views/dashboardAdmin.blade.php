@@ -64,7 +64,7 @@
 
                             {{-- PROGETTI: Grafico a Cerchio --}}
                             @if ($type == 'projects')
-                                <a href="{{ route('publication.index') }}"
+                                <a href="{{ route('publication.indexAdmin') }}"
                                     class="relative w-20 h-20 mx-auto block hover:scale-105 transition-transform">
                                     <svg class="w-full h-full transform -rotate-90">
                                         <circle cx="40" cy="40" r="35" stroke="currentColor" stroke-width="6"

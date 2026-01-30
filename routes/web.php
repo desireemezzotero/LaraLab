@@ -22,21 +22,31 @@ use Illuminate\Support\Facades\Route;
 |
 */
 
-Route::middleware(['auth', 'verified'])->group(function () {
 
-    /* pagina dell'utente quando effettua il login */
+Route::get('/', [PublicationController::class, 'index'])->name('publication.index');
+Route::get('/publication/{publication}', [PublicationController::class, 'show'])->name('publication.show');
+
+
+Route::middleware(['auth', 'verified'])->group(function () {
     Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
 
     /* rotta accessibile a tutti */
+
+    /* i progetti */
     Route::resource('/project', ProjectController::class);
 
+    /* le pubblicazioni */
+    Route::resource('/publication', PublicationController::class)->except(['index', 'show']);;
+
+    /* task modifica e commenti */
     Route::resource('task', TaskController::class)->only(['show', 'edit', 'update']);
     Route::resource('/tasks/{task}/comments', CommentController::class);
 
-    Route::resource('/publication', PublicationController::class);
+    /* TUTTE le pubblicazioni per l'admin */
+    Route::get('/admin/publications', [PublicationController::class, 'indexAdmin'])->name('publication.indexAdmin');
+
+    /* ceare un nuovo utente ADMIN */
     Route::resource('/user', UserController::class);
-
-
 
     /* Allegati:eliminazione */
     Route::delete('/attachments/{attachment}', [ProjectController::class, 'destroyAttachment'])->name('attachment.destroy');
@@ -44,20 +54,21 @@ Route::middleware(['auth', 'verified'])->group(function () {
     /* SOLO GLI UTENTI ADMIN E PROJECT MANAGER POSSO FARE DETERMINATE COSE */
     Route::middleware(['project.manager'])->group(function () {
 
-
         /* Milestone: modifica e cancellazione  */
         Route::resource('milestones', MilestoneController::class)->only(['edit', 'update', 'destroy'])->parameters(['milestones' => 'milestone']);
-
 
         /* Milestone: creazione e salvataggio */
         Route::get('/project/{project}/milestones/create', [MilestoneController::class, 'create'])->name('milestones.create');
         Route::post('/project/{project}/milestones', [MilestoneController::class, 'store'])->name('milestones.store');
 
+        /* creare task */
         Route::get('/project/{project}/task/create', [TaskController::class, 'create'])->name('project.task.create');
         Route::post('/project/{project}/task', [TaskController::class, 'store'])->name('project.task.store');
 
+        /* eliminare i commenti */
         Route::delete('/comments/{comment}', [CommentController::class, 'destroy'])->name('comments.destroy');
 
+        /* eliminare le pubblicazioni SOLO admin */
         Route::delete('/publication/{publication}', [PublicationController::class, 'destroy'])->name('publication.destroy');
     });
 

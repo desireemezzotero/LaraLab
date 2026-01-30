@@ -10,35 +10,33 @@ class PublicationController extends Controller
     /* TUTTE LE PUBBLICAZIONI */
     public function index()
     {
-        /** @var \App\Models\User $user */
-        $user = auth()->user();
 
-        // 2. CASO: ADMIN (VEDE TUTTO SENZA FILTRI)
-        if ($user->role === 'Admin/PI') {
-            $stats = [
-                'projects' => \App\Models\Project::count(), // Tutti i progetti
-                'projects_completed' => \App\Models\Project::where('status', 'completed')->count(),
-                'tasks' => \App\Models\Task::count(),
-                'tasks_completed' => \App\Models\Task::where('status', 'completed')->count(),
-                'users' => \App\Models\User::count(),
-                /* 'publications' => \App\Models\Publication::with(['projects', 'authors'])->get(), */
-                'attachments' => \App\Models\Attachment::count(),
-            ];
+        $publicationPublished = \App\Models\Publication::with(['authors'])
+            ->where('status', 'published')
+            ->latest()
+            ->get();
 
-            $publications = \App\Models\Publication::with(['projects', 'authors'])->latest()->get();
-            $projectsList = \App\Models\Project::latest()->get();
-
-            return view('dashboardPublicationAdmin', compact('stats', 'projectsList', 'publications'));
-        } elseif (!auth()->check()) {
-            $publicationPublished = \App\Models\Publication::with(['authors'])
-                ->where('status', 'published')
-                ->latest()
-                ->get();
-
-            return view('welcome', compact('publicationPublished'));
-        }
+        return view('welcome', compact('publicationPublished'));
     }
 
+    public function indexAdmin()
+    {
+        $user = auth()->user();
+
+        $stats = [
+            'projects' => \App\Models\Project::count(), // Tutti i progetti
+            'projects_completed' => \App\Models\Project::where('status', 'completed')->count(),
+            'tasks' => \App\Models\Task::count(),
+            'tasks_completed' => \App\Models\Task::where('status', 'completed')->count(),
+            'users' => \App\Models\User::count(),
+            'attachments' => \App\Models\Attachment::count(),
+        ];
+
+        $publications = \App\Models\Publication::with(['projects', 'authors'])->latest()->get();
+        $projectsList = \App\Models\Project::latest()->get();
+
+        return view('dashboardPublicationAdmin', compact('stats', 'projectsList', 'publications'));
+    }
 
 
     /*   FORM PER NUOVA PUBBLICAZIONE */
@@ -104,23 +102,28 @@ class PublicationController extends Controller
     {
         $user = auth()->user();
 
-        if ($user->role === 'Admin/PI') {
-            $publication->load(['projects', 'authors', 'attachments']);
+        // 1. Caricamento base comune a tutti (Autori e Allegati)
+        $relations = ['authors', 'attachments'];
 
-            return view('publishDetail', compact('publication'));
-        } elseif (!auth()->check()) {
-            $publication->load(['authors', 'attachments']);
-
-
-            return view('publishDetail', compact('publication'));
+        // 2. Se l'utente è Admin/PI, carichiamo ANCHE i progetti
+        if ($user && $user->role === 'Admin/PI') {
+            $relations[] = 'projects';
         }
+
+        $publication->load($relations);
+
+        // 3. Restituiamo SEMPRE la vista (indipendentemente dal ruolo)
+        return view('publishDetail', compact('publication'));
     }
 
 
 
     public function edit(Publication $publication)
     {
-        if (auth()->user()->role !== 'Admin/PI') {
+        $user = auth()->user();
+        $isAuthor = $publication->authors->contains($user->id);
+
+        if (auth()->user()->role !== 'Admin/PI' && !($user->role === 'Researcher' && $isAuthor)) {
             abort(403);
         }
 
@@ -134,48 +137,56 @@ class PublicationController extends Controller
 
     public function update(Request $request, Publication $publication)
     {
-        if (auth()->user()->role !== 'Admin/PI') {
+        $user = auth()->user();
+        $isAdmin = $user->role === 'Admin/PI';
+        $isAuthor = $publication->authors->contains($user->id);
+
+        // Controllo sicurezza base
+        if (!$isAdmin && !($user->role === 'Researcher' && $isAuthor)) {
             abort(403);
         }
 
-        $validated = $request->validate([
-            'title' => 'required|string|max:255',
-            'description' => 'required|string',
-            'status' => 'required|in:drafting,submitted,accepted,published',
-            'authors' => 'required|array|min:1',
-            'positions' => 'required|array',
-            'attachments.*' => 'nullable|file|mimes:pdf,jpg,png,docx|max:5120',
-        ]);
+        if (!$isAdmin) {
+            $validated = $request->validate([
+                'status' => 'required|in:drafting,submitted,accepted,published',
+            ]);
+            $publication->update(['status' => $validated['status']]);
+        } else {
+            // Logica completa per l'ADMIN (quella che avevi già)
+            $validated = $request->validate([
+                'title' => 'required|string|max:255',
+                'description' => 'required|string',
+                'status' => 'required|in:drafting,submitted,accepted,published',
+                'authors' => 'required|array|min:1',
+                'positions' => 'required|array',
+                'attachments.*' => 'nullable|file|mimes:pdf,jpg,png,docx|max:5120',
+            ]);
 
-        // 1. Aggiorna i dati base
-        $publication->update([
-            'title' => $validated['title'],
-            'description' => $validated['description'],
-            'status' => $validated['status'],
-        ]);
+            $publication->update([
+                'title' => $validated['title'],
+                'description' => $validated['description'],
+                'status' => $validated['status'],
+            ]);
 
-        // 2. Sincronizza gli Autori (Gestisce aggiunte, rimozioni e cambi posizione)
-        $syncData = [];
-        foreach ($validated['authors'] as $userId) {
-            $syncData[$userId] = [
-                'position' => $validated['positions'][$userId] ?? 1
-            ];
-        }
-        $publication->authors()->sync($syncData);
+            $syncData = [];
+            foreach ($validated['authors'] as $userId) {
+                $syncData[$userId] = ['position' => $validated['positions'][$userId] ?? 1];
+            }
+            $publication->authors()->sync($syncData);
 
-        // 3. Aggiunta nuovi allegati (senza cancellare i vecchi)
-        if ($request->hasFile('attachments')) {
-            foreach ($request->file('attachments') as $file) {
-                $path = $file->store('publications_files', 'public');
-                $publication->attachments()->create([
-                    'file_path' => $path,
-                    'file_name' => $file->getClientOriginalName(),
-                ]);
+            if ($request->hasFile('attachments')) {
+                foreach ($request->file('attachments') as $file) {
+                    $path = $file->store('publications_files', 'public');
+                    $publication->attachments()->create([
+                        'file_path' => $path,
+                        'file_name' => $file->getClientOriginalName(),
+                    ]);
+                }
             }
         }
 
         return redirect()->route('publication.show', $publication->id)
-            ->with('success', 'Pubblicazione aggiornata correttamente!');
+            ->with('success', 'Aggiornamento completato!');
     }
 
     /* ELIMINAZIONE DELLA PUBBLICAZIONE */

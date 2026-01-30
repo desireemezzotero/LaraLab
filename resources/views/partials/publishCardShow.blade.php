@@ -1,3 +1,16 @@
+@php
+    $user = auth()->user();
+    $isAdmin = $user?->role === 'Admin/PI';
+
+    // Verifica se l'utente loggato è tra gli autori di questa pubblicazione
+$isAuthor = $publication->authors->contains($user->id ?? 0);
+
+// Un Researcher può modificare solo se è autore. L'admin può sempre.
+    $canEdit = $isAdmin || ($user?->role === 'Researcher' && $isAuthor);
+
+    $gridClasses = $isAdmin ? 'lg:grid-cols-4' : 'lg:grid-cols-2 max-w-5xl justify-center';
+@endphp
+
 <div class="p-4 mx-auto container">
 
     <div class="mb-8 flex items-center justify-between">
@@ -9,8 +22,8 @@
         </h1>
 
         {{-- ICONE DI MODIFICA ED ELIMINA --}}
-        <div class="w-24 flex justify-end items-center space-x-3">
-            @if (auth()->user()->role === 'Admin/PI')
+        @if ($canEdit)
+            <div class="w-24 flex justify-end items-center space-x-3">
                 <div class="w-24 flex justify-end items-center space-x-3">
 
 
@@ -24,25 +37,27 @@
                     </a>
 
                     {{-- Icona Elimina --}}
-
-                    <form action="{{ route('publication.destroy', $publication->id) }}" method="POST"
-                        onsubmit="return confirm('Sei sicuro di voler eliminare l\'intero progetto?')">
-                        @csrf
-                        @method('DELETE')
-                        <button type="submit" class="text-red-500 transition transform hover:scale-150"
-                            title="Elimina Progetto">
-                            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 640" class="h-7 fill-current">
-                                <path
-                                    d="M232.7 69.9L224 96L128 96C110.3 96 96 110.3 96 128C96 145.7 110.3 160 128 160L512 160C529.7 160 544 145.7 544 128C544 110.3 529.7 96 512 96L416 96L407.3 69.9C402.9 56.8 390.7 48 376.9 48L263.1 48C249.3 48 237.1 56.8 232.7 69.9zM512 208L128 208L149.1 531.1C150.7 556.4 171.7 576 197 576L443 576C468.3 576 489.3 556.4 490.9 531.1L512 208z" />
-                            </svg>
-                        </button>
-                    </form>
-            @endif
-        </div>
+                    @if ($isAdmin)
+                        <form action="{{ route('publication.destroy', $publication->id) }}" method="POST"
+                            onsubmit="return confirm('Sei sicuro di voler eliminare l\'intero progetto?')">
+                            @csrf
+                            @method('DELETE')
+                            <button type="submit" class="text-red-500 transition transform hover:scale-150"
+                                title="Elimina Progetto">
+                                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 640" class="h-7 fill-current">
+                                    <path
+                                        d="M232.7 69.9L224 96L128 96C110.3 96 96 110.3 96 128C96 145.7 110.3 160 128 160L512 160C529.7 160 544 145.7 544 128C544 110.3 529.7 96 512 96L416 96L407.3 69.9C402.9 56.8 390.7 48 376.9 48L263.1 48C249.3 48 237.1 56.8 232.7 69.9zM512 208L128 208L149.1 531.1C150.7 556.4 171.7 576 197 576L443 576C468.3 576 489.3 556.4 490.9 531.1L512 208z" />
+                                </svg>
+                            </button>
+                        </form>
+                    @endif
+                </div>
+        @endif
     </div>
 </div>
 
-<div class="grid grid-cols-1 lg:grid-cols-4 gap-8">
+
+<div class="grid grid-cols-1 gap-8 container mx-auto {{ $gridClasses }}">
 
     {{-- TEAM --}}
     <div class="lg:col-span-1 bg-white p-6 rounded-2xl shadow-sm border border-gray-100">
@@ -179,7 +194,7 @@
         </div>
     </div>
 
-    @if (auth()->user()->role === 'Admin/PI')
+    @if ($isAdmin)
         <div class="lg:col-span-2">
 
             <h2 class="text-lg font-semibold mb-3 flex items-center">
