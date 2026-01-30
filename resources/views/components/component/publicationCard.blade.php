@@ -10,11 +10,22 @@
             <div
                 class="bg-neutral-primary-soft flex flex-col h-full p-6 border border-default rounded-base shadow-xs hover:shadow-md transition-shadow duration-300">
 
+                @php
+                    $cover = $publication->attachments->first();
+                @endphp
 
-                <a href="#" class="block overflow-hidden rounded-base">
-                    <img class="w-full h-48 object-cover transform hover:scale-105 transition-transform duration-500"
-                        src="#" alt="#" />
+                <a href="{{ route('publication.show', $publication->id) }}" class="block overflow-hidden rounded-base">
+                    @if ($cover)
+                        <img class="w-full h-48 object-cover transform hover:scale-105 transition-transform duration-500"
+                            src="{{ asset('storage/' . $cover->file_path) }}" alt="{{ $publication->title }}" />
+                    @else
+                        {{-- Immagine di placeholder se non ci sono allegati --}}
+                        <div class="w-full h-48 bg-gray-200 flex items-center justify-center text-gray-400">
+                            <span>Nessuna anteprima</span>
+                        </div>
+                    @endif
                 </a>
+
 
                 <div class="flex flex-col flex-grow">
                     <h5 class="mt-6 mb-2 text-2xl font-semibold tracking-tight text-heading">{{ $publication->title }}

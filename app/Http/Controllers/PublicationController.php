@@ -11,7 +11,7 @@ class PublicationController extends Controller
     public function index()
     {
 
-        $publicationPublished = \App\Models\Publication::with(['authors'])
+        $publicationPublished = \App\Models\Publication::with(['authors', 'attachments'])
             ->where('status', 'published')
             ->latest()
             ->get();
