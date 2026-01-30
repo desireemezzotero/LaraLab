@@ -53,6 +53,11 @@
                                         <span
                                             class="bg-green-100 text-green-600 text-xs font-bold px-3 py-1 rounded-full">Pubblicato</span>
                                     @break
+
+                                    @case('accepted')
+                                        <span
+                                            class="bg-green-200 text-green-900 text-xs font-bold px-3 py-1 rounded-full">Accettato</span>
+                                    @break
                                 @endswitch
                             </td>
 
