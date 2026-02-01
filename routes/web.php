@@ -24,7 +24,7 @@ use Illuminate\Support\Facades\Route;
 
 
 Route::get('/', [PublicationController::class, 'index'])->name('publication.index');
-Route::get('/publication/{publication}', [PublicationController::class, 'show'])->name('publication.show');
+
 
 
 Route::middleware(['auth', 'verified'])->group(function () {
@@ -36,7 +36,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::resource('/project', ProjectController::class);
 
     /* le pubblicazioni */
-    Route::resource('/publication', PublicationController::class)->except(['index', 'show']);;
+    Route::resource('/publication', PublicationController::class)->except(['index', 'show']);
 
     /* task modifica e commenti */
     Route::resource('task', TaskController::class)->only(['show', 'edit', 'update']);
@@ -78,4 +78,5 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
 });
 
+Route::get('/publication/{publication}', [PublicationController::class, 'show'])->name('publication.show');
 require __DIR__ . '/auth.php';

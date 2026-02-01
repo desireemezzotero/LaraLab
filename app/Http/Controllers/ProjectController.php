@@ -107,10 +107,7 @@ class ProjectController extends Controller
             return $task->users->contains($userId);
         });
 
-        $otherTasks = $allTasks->filter(function ($task) use ($userId) {
-            return !$task->users->contains($userId);
-        });
-
+        $otherTasks = $allTasks;
 
         return view('projectShow', [
             'project' => $project,
